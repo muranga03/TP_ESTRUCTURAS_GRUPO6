@@ -32,4 +32,6 @@ class Mantenimiento(Personal):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña, nro_personal, sueldo, fecha_alta)
     
 
-
+def jj ():
+    
+    pass
