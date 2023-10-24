@@ -44,6 +44,3 @@ def jj ():
     
     pass
 
-dni = 45014484
-archivo_cliente = str(dni) + '_historial.csv'
-print(archivo_cliente)
