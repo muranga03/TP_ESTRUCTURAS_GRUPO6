@@ -64,16 +64,16 @@ def egreso_archivo(legajo, fecha_egreso):
 
 
 class Usuario:
-    def __init__(self,nombre,apellido,nombreusuario,dni,contraseña):
+    def __init__(self,nombre,apellido,nombreusuario,dni,contrasena):
         self.nombre=nombre
         self.apellido=apellido
         self.nombreusuario=nombreusuario
         self.dni=dni
-        self.contraseña=contraseña
+        self.contrasena=contrasena
 
 class Cliente(Usuario):
-    def __init__(self, nombre, apellido, nombreusuario, dni, contraseña,nro_cliente):
-        super().__init__(nombre, apellido, nombreusuario, dni, contraseña)
+    def __init__(self, nombre, apellido, nombreusuario, dni, contrasena ,nro_cliente):
+        super().__init__(nombre, apellido, nombreusuario, dni, contrasena)
         self.nro_cliente=nro_cliente
     def check_in(self):
         FILE = str(self.dni) + '_historial.csv'
@@ -191,4 +191,4 @@ class Limpieza(Personal):
 class Mantenimiento(Personal):
     def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, nro_personal, sueldo, fecha_alta=dt.date):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña, nro_personal, sueldo, fecha_alta)
-    
+ 
