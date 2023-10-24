@@ -60,6 +60,51 @@ def egreso_archivo(legajo, fecha_egreso):
     else:
         print("La fecha de egreso es menor que la fecha de ingreso")   
 
+def historial_personal (legajo, nombre,apellido ,fecha ):
+    # Utilizo esta funcion para crear el archivo con el historial de fecha de altas y bajas de cada empleado
+    try:
+        fd= open("Historial_del_personal.txt", "a")
+        fd.write("La persona, ")
+        fd.write(str(nombre) + " " +str(apellido))
+        fd.write(" de legajo, ")
+        fd.write(str(legajo)+ ", empezo a trabajar ")
+        fd.write(str(fecha))
+        fd.write('\n')
+        fd.close()
+    except FileNotFoundError:
+        fd= open("Historial_del_personal.txt", "x")
+        fd.write("La persona, ")
+        fd.write(str(nombre) + " " +str(apellido))
+        fd.write(" de legajo, ")
+        fd.write(str(legajo)+ ", empezo a trabajar ")
+        fd.write(str(fecha))
+        fd.write('\n')
+        fd.close()
+
+
+
+def dar_baja_personal(legajo):
+    lista=[]
+    FILE= "Historial_del_personal.txt"
+    try:
+        with open(FILE, 'r', encoding='utf-8') as archivo:
+            lector = csv.reader(archivo)
+            for fila in lector:
+                lista.append(fila)
+        
+        
+    except FileNotFoundError:  
+        print("El archivo", FILE, "no existe.")
+    for i in range(len(lista)):
+        if int(lista[i][2])== int(legajo):
+            lista[i].append(" y la fecha de baja es ")
+            fecha=dt.date.today()
+            lista[i].append(str(fecha))
+    with open(FILE, 'w', newline='', encoding='utf-8') as archivo:
+                escritor = csv.writer(archivo)
+                for reserva in lista:
+                    escritor.writerow(reserva)
+
 
 class habitacion():
     def _init_(self,nro, capacidad,precio):
@@ -228,6 +273,17 @@ class Personal(Usuario):
         fecha=dt.datetime.now()
         egreso_archivo(legajo,fecha)
         
+    def alta(self):
+        legajo=self.nro_personal
+        nombre=self.nombre
+        apellido=self.apellido
+        fecha_alta=dt.date.today()
+        historial_personal (legajo, nombre,apellido ,fecha_alta )
+    
+def baja (self):
+        legajo=self.nro_personal
+        dar_baja_personal(legajo)
+
 
 
 class Administrativo(Personal):
