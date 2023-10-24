@@ -41,5 +41,6 @@ def signIn(lista):
                 while len(contra)<5 or ' ' in contra or ',' in contra:
                     contra = input("Ingrese su contraseña denuevo, debe contener al menos 5 caracteres y no puede contener espacios ni comas")
                 nuevoUsuario = Usuario(nombre,apellido,usuario,dni,contra)
+                lista.append(nuevoUsuario)
         
 
