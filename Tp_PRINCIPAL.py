@@ -61,6 +61,61 @@ def egreso_archivo(legajo, fecha_egreso):
         print("La fecha de egreso es menor que la fecha de ingreso")   
 
 
+class habitacion():
+    def _init_(self,nro, capacidad,precio):
+        self.nro = nro
+        self.capacidad = capacidad
+        self.precio = precio
+        
+class hab_prem(habitacion): #Habitacion Suite/Familiar
+    def _init_(self,nro, capacidad,precio, categoria = 'Premium', balcon = True, banopriv= True):
+        super()._init_(nro, capacidad,precio)
+        self.categoria = categoria
+        self.balcon = balcon
+        self. banopriv = banopriv
+        self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
+        
+class hab_med(habitacion): #Habitacion media
+    def _init_(self,nro, capacidad,precio, categoria = 'Intermedia', balcon = False, banopriv= True):
+        super()._init_(nro, capacidad,precio)
+        self.categoria = categoria
+        self.balcon = balcon
+        self. banopriv = banopriv
+        self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
+
+class hab_bas(habitacion): #Habitacion basica
+    def _init_(self,nro, capacidad,precio, categoria = 'Basica', balcon = False, banopriv= False):
+            super()._init_(nro, capacidad,precio)
+            self.categoria = categoria
+            self.balcon = balcon
+            self. banopriv = banopriv
+            self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
+
+#Creacion de las habitaciones
+basica1 = hab_bas(101, 4, 1000)
+intermedia1 = hab_med(201, 2, 2000)
+premium1 = hab_prem(301, 2, 5000)
+basica2 = hab_bas(102, 3, 800)
+intermedia2 = hab_med(202, 4, 3000)
+premium2 = hab_prem(302, 2, 5000)
+basica3 = hab_bas(103, 6, 1500)
+intermedia3 = hab_med(203, 4, 3500)
+premium3 = hab_prem(303, 2, 5000)
+basica4 = hab_bas(104, 3, 800)
+
+listahab = [] #Lista de todas las habitaciones(libres)
+listahab.append(basica1)
+listahab.append(intermedia1)
+listahab.append(premium1)
+listahab.append(basica2)
+listahab.append(intermedia2)
+listahab.append(premium2)
+listahab.append(basica3)
+listahab.append(intermedia3)
+listahab.append(premium3)
+listahab.append(basica4)
+
+listahabocupadas = [] #lista donde se meten todas las habitaciones ocupadas
 
 
 class Usuario:
@@ -99,6 +154,24 @@ class Cliente(Usuario):
             escritor = csv.writer(archivo)
             for reserva in lista:
                 escritor.writerow(reserva)
+        existe = False
+        ocupado = False
+        while existe == False and ocupado == False:
+            nrohab = int(input('Ingrese la habitacion deseada'))
+            for i in listahab:
+                if i.nro == nrohab:
+                    existe = True
+            for i in listahabocupadas:
+                if i.nro ==nrohab:
+                    ocupado = True
+                    print('Esa habitación esta ocupada')
+        if existe ==False:
+            print('Esa habitación no existe')
+        
+        for i in listahab:
+            if i.nro == nrohab:
+                listahabocupadas.append(i)
+                listahab.remove(i)
     def check_out(self,dias):
         FILE = str(self.dni) + '_historial.csv'
         lista = []
@@ -115,10 +188,15 @@ class Cliente(Usuario):
                 for fila in lista:
                     escritor.writerow(fila)
         if len(lista)>1 and lista[len(lista)-1][3] == '':
-            fcistr = lista[1][2]
+            fcistr = lista[len(lista)-1][2]
             fci = dt.datetime.strptime(fcistr, '%Y-%m-%d').date()
             fco = fci + dt.timedelta(days=dias)
             lista[len(lista)-1][3] = fco
+            nrohab = lista[len(lista)-1][1]
+            for i in listahabocupadas:
+                if i.nro == nrohab:
+                    listahab.append(i)
+                    listahabocupadas.remove(i)
             with open(FILE, 'w', newline='', encoding='utf-8') as archivo:
                 escritor = csv.writer(archivo)
                 for reserva in lista:
@@ -131,35 +209,7 @@ class Cliente(Usuario):
     def buffet():
         pass
     
-class habitacion():
-    def _init_(self,nro, capacidad,precio):
-        self.nro = nro
-        self.capacidad = capacidad
-        self.precio = precio
-        
-class hab_prem(habitacion): #Habitacion Suite/Familiar
-    def _init_(self,nro, capacidad,precio, categoria = 'Premium', balcon = True, banopriv= True):
-        super()._init_(nro, capacidad,precio)
-        self.categoria = categoria
-        self.balcon = balcon
-        self. banopriv = banopriv
-        self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
-        
-class hab_med(habitacion): #Habitacion media
-    def _init_(self,nro, capacidad,precio, categoria = 'Intermedia', balcon = False, banopriv= True):
-        super()._init_(nro, capacidad,precio)
-        self.categoria = categoria
-        self.balcon = balcon
-        self. banopriv = banopriv
-        self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
 
-class hab_bas(habitacion): #Habitacion basica
-    def _init_(self,nro, capacidad,precio, categoria = 'Basica', balcon = False, banopriv= False):
-            super()._init_(nro, capacidad,precio)
-            self.categoria = categoria
-            self.balcon = balcon
-            self. banopriv = banopriv
-            self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
 
 class Personal(Usuario):
 
