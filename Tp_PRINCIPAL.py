@@ -33,8 +33,6 @@ def ingreso_archivo (legajo, fecha, var):
             fd.write(str(fecha))
             fd.write('\n')
             fd.close()
-
-
         
 def egreso_archivo(legajo, fecha_egreso):
 # traigo el archivo de ingreso y verifico que la fecha de egreso sea posterior a la de ingreso de un legajo
@@ -50,7 +48,7 @@ def egreso_archivo(legajo, fecha_egreso):
         
     except FileNotFoundError:  
         print("El archivo", FILE, "no existe.")
-    fecha= None
+    
     for i in range(len(lista)):
         if int(lista[i][1])== int(legajo):
             var=lista[i][-1].split(".")[0]
@@ -59,6 +57,136 @@ def egreso_archivo(legajo, fecha_egreso):
         ingreso_archivo(legajo,fecha_egreso,False)
     else:
         print("La fecha de egreso es menor que la fecha de ingreso")   
+
+def historial_personal (legajo, nombre,apellido ,fecha,tipo):
+    # Utilizo esta funcion para crear el archivo con el historial de fecha de altas y bajas de cada empleado
+    try:
+        fd= open("Historial_del_personal.txt", "a")
+        fd.write("La persona, ")
+        fd.write(str(nombre) + " " +str(apellido))
+        fd.write(" de legajo, ")
+        fd.write(str(legajo)+ ", empezo a trabajar ")
+        fd.write(str(fecha))
+        fd.write("  como  ")
+        fd.write(str(tipo))
+        fd.write('\n')
+        fd.close()
+    except FileNotFoundError:
+        fd= open("Historial_del_personal.txt", "x")
+        fd.write("La persona, ")
+        fd.write(str(nombre) + " " +str(apellido))
+        fd.write(" de legajo, ")
+        fd.write(str(legajo)+ ", empezo a trabajar ")
+        fd.write(str(fecha))   
+        fd.write("  como  ")
+        fd.write(str(tipo))
+        fd.write('\n')
+        fd.close()
+
+def asignar_tarea(legajo,tarea):
+# Bajo el archivo con el historial del personal en una lista de listas
+    lista=[]
+    FILE= "Historial_del_personal.txt"
+    try:
+        with open(FILE, 'r', encoding='utf-8') as archivo:
+            lector = csv.reader(archivo)
+            for fila in lector:
+                lista.append(fila)
+        
+        
+    except FileNotFoundError:  
+        print("El archivo", FILE, "no existe.")
+    contador=0
+    for i in range(len(lista)):
+# Me fijo si el legajo ingresado para asignar la tarea pertenece a un personal en servicio       
+        if contador==0:
+            if int(legajo)==int(lista[i][2]):
+                try:
+                    fd= open("tareas.txt", "a")
+                    fd.write("El legajo, ")
+                    fd.write(str(legajo)+ ", tiene la siguiente asignatura:  ")
+                    fd.write(str(tarea))
+                    fd.write('\n')
+                    fd.close()
+                except FileNotFoundError:
+                    fd= open("tareas.txt", "x")
+                    fd.write(str(legajo)+ ", tiene la siguiente asignatura:  ")
+                    fd.write(str(tarea))
+                    fd.write('\n')
+                    fd.close()
+                contador+=1
+            else:
+                print("El legajo ingresado no es de un personal en servicio")
+                contador+=1
+
+def dar_baja_personal(legajo):
+    lista=[]
+    FILE= "Historial_del_personal.txt"
+    try:
+        with open(FILE, 'r', encoding='utf-8') as archivo:
+            lector = csv.reader(archivo)
+            for fila in lector:
+                lista.append(fila)
+        
+        
+    except FileNotFoundError:  
+        print("El archivo", FILE, "no existe.")
+    for i in range(len(lista)):
+        if int(lista[i][2])== int(legajo):
+            lista[i].append(" y la fecha de baja es ")
+            fecha=dt.date.today()
+            lista[i].append(str(fecha))
+    with open(FILE, 'w', newline='', encoding='utf-8') as archivo:
+                escritor = csv.writer(archivo)
+                for reserva in lista:
+                    escritor.writerow(reserva)
+
+def recaudacion(valor, fecha):
+    lista=[]
+    FILE= "Recaudacion.txt"
+    try:
+        with open(FILE, 'r', encoding='utf-8') as archivo:
+            lector = csv.reader(archivo)
+            for fila in lector:
+                for i in fila:
+                    var=i.split(":")
+                lista.append(var)
+              
+        print("a")
+        print(lista)
+        for i in range(len(lista)):
+            if str(fecha) in lista[i][0]:
+                valor =int(valor)
+                valor+=int(lista[i][1])
+                lista[i][1]=str(valor)
+                fd= open("Recaudacion.txt", "w")
+                fd.write(lista[i][0])
+                fd.write(": ")
+                fd.write(lista[i][1])
+                fd.write('\n')
+                fd.close()
+            elif str(fecha) not in lista[i][0]:
+                fd= open("Recaudacion.txt", "a")
+                fd.write("La recaudacion del dia ")
+                fd.write(str(fecha))
+                fd.write(" es: ")
+                fd.write(str(valor))
+                fd.write('\n')
+                fd.close()
+        print(lista)
+
+            
+
+    except FileNotFoundError:  
+        fd= open("Recaudacion.txt", "x")
+        fd.write("La recaudacion del dia ")
+        fd.write(str(fecha))
+        fd.write(" es: ")
+        fd.write(str(valor))
+        fd.write('\n')
+        fd.close()
+# 
+# recaudacion(1100,"2023-10-30")
 
 
 class habitacion():
@@ -91,7 +219,7 @@ class hab_bas(habitacion): #Habitacion basica
             self. banopriv = banopriv
             self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
 
-#Creacion de las habitaciones
+# Creacion de las habitaciones
 basica1 = hab_bas(101, 4, 1000)
 intermedia1 = hab_med(201, 2, 2000)
 premium1 = hab_prem(301, 2, 5000)
@@ -127,9 +255,11 @@ class Usuario:
         self.contrasena=contrasena
 
 class Cliente(Usuario):
-    def __init__(self, nombre, apellido, nombreusuario, dni, contrasena ,nro_cliente):
-        super().__init__(nombre, apellido, nombreusuario, dni, contrasena)
-        self.nro_cliente=nro_cliente
+    numero = 1
+    def __init__(self, nombre, apellido, nombreusuario, dni, contraseña):
+        super().__init__(nombre, apellido, nombreusuario, dni, contraseña)
+        self.nro_cliente=Cliente.numero
+        Cliente.numero+=1
     def check_in(self):
         FILE = str(self.dni) + '_historial.csv'
         lista = []
@@ -212,10 +342,11 @@ class Cliente(Usuario):
 
 
 class Personal(Usuario):
-
-    def __init__(self, nombre, apellido, nombreusuario, dni, contraseña,nro_personal,sueldo,fecha_alta=dt.date):
+    numero=1
+    def __init__(self, nombre, apellido, nombreusuario, dni, contraseña,sueldo):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña)
-        self.nro_personal=nro_personal
+        self.nro_personal=Personal.numero
+        Personal.numero+=1
         self.sueldo=sueldo
     
     def ingreso (self):
@@ -228,17 +359,55 @@ class Personal(Usuario):
         fecha=dt.datetime.now()
         egreso_archivo(legajo,fecha)
         
+    def alta(self):
+        legajo=self.nro_personal
+        nombre=self.nombre
+        apellido=self.apellido
+        tipo=self.tipo
+        fecha_alta=dt.date.today()
+        historial_personal (legajo, nombre,apellido ,fecha_alta,tipo)
+    
+    def baja (self):
+        legajo=self.nro_personal
+        dar_baja_personal(legajo)
+    
+    def asignar_tarea (self,tarea):
+        legajo=self.nro_personal
+        trabajos = self.trabajos
+        if tarea.lower() in trabajos:
+            asignar_tarea(legajo,tarea)
+        else:
+            print("La tarea no corresponde al tipo de empleado")
+
 
 
 class Administrativo(Personal):
-    def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, nro_personal, sueldo, fecha_alta=dt.date):
-        super().__init__(nombre, apellido, nombreusuario, dni, contraseña, nro_personal, sueldo, fecha_alta)
+    tipo="Administrador"
+    trabajos=["organizar evento","coordinar transporte","recibir al cliente"]
+
+    def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, sueldo):
+        super().__init__(nombre, apellido, nombreusuario, dni, contraseña, sueldo)
+    
+    
+        
 
 class Limpieza(Personal):
-    def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, nro_personal, sueldo, fecha_alta=dt.date):
-        super().__init__(nombre, apellido, nombreusuario, dni, contraseña, nro_personal, sueldo, fecha_alta)
+    tipo="Limpiador"
+    trabajos=["lavar cocina","limpiar cuartos","limpiar lobby"]
+
+    def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, sueldo):
+        super().__init__(nombre, apellido, nombreusuario, dni, contraseña, sueldo)
+
 
 class Mantenimiento(Personal):
-    def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, nro_personal, sueldo, fecha_alta=dt.date):
-        super().__init__(nombre, apellido, nombreusuario, dni, contraseña, nro_personal, sueldo, fecha_alta)
- 
+    tipo="Mantenimiento"
+    trabajos=["cortar pasto", "limpiar pileta","podar plantas"]
+
+    def __init__(self, nombre, apellido, nombreusuario, dni, contraseña,sueldo):
+        super().__init__(nombre, apellido, nombreusuario, dni, contraseña, sueldo)
+
+# persona=Mantenimiento("ma","u","man","23","ma",12)
+# persona1=Limpieza("oeter","u","man","23","ma",12)
+
+# print(persona.nro_personal)
+# print(persona1.nro_personal)
