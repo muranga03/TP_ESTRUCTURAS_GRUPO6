@@ -141,57 +141,110 @@ def dar_baja_personal(legajo):
                 for reserva in lista:
                     escritor.writerow(reserva)
 
-def recaudacion(valor, fecha):
-    lista=[]
-    FILE= "Recaudacion.txt"
-    try:
-        with open(FILE, 'r', encoding='utf-8') as archivo:
-            lector = csv.reader(archivo)
-            for fila in lector:
-                for i in fila:
-                    var=i.split(":")
-                lista.append(var)
-              
-        print("a")
-        print(lista)
-        for i in range(len(lista)):
-            if str(fecha) in lista[i][0]:
-                valor =int(valor)
-                valor+=int(lista[i][1])
-                lista[i][1]=str(valor)
-                fd= open("Recaudacion.txt", "w")
-                fd.write(lista[i][0])
-                fd.write(": ")
-                fd.write(lista[i][1])
-                fd.write('\n')
-                fd.close()
-            elif str(fecha) not in lista[i][0]:
-                fd= open("Recaudacion.txt", "a")
-                fd.write("La recaudacion del dia ")
-                fd.write(str(fecha))
-                fd.write(" es: ")
-                fd.write(str(valor))
-                fd.write('\n')
-                fd.close()
-        print(lista)
+class Recaudaciones:
+    def __init__(self, nombre_archivo):
+        self.total_diario = {}  # Dictionary to store daily fundraising totals
+        self.nombre_archivo = nombre_archivo
+        self.bajar_de_archivo()
 
-            
+    def guardar_donaciones(self, fecha, cant):
+        if fecha in self.total_diario:
+            self.total_diario[fecha] += cant
+        else:
+            self.total_diario[fecha] = cant
 
-    except FileNotFoundError:  
-        fd= open("Recaudacion.txt", "x")
-        fd.write("La recaudacion del dia ")
-        fd.write(str(fecha))
-        fd.write(" es: ")
-        fd.write(str(valor))
-        fd.write('\n')
-        fd.close()
-# 
-# recaudacion(1100,"2023-10-30")
+    def obtener_total_diario(self, fecha):
+        if fecha in self.total_diario:
+            return self.total_diario[fecha]
+        else:
+            return 0
 
+    def guardar_en_archivo(self):
+        with open(self.nombre_archivo, 'w') as file:
+            for fecha, total in self.total_diario.items():
+                file.write(f"{fecha}: {total}\n")
+
+    def bajar_de_archivo(self):
+        self.total_diario = {}
+        try:
+            with open(self.nombre_archivo, 'r') as file:
+                for line in file:
+                    fecha, total = line.strip().split(": ")
+                    self.total_diario[fecha] = int(total)
+        except FileNotFoundError:
+            print(f"Creando archivo {self.nombre_archivo}")
+
+def recaudacion_diaria(recaudado,fecha):
+    fundraiser = Recaudaciones("Recaudaciones.txt")
+    
+    if type(fecha)==dt.date:
+        fecha_2 = fecha.strftime('%Y-%m-%d')
+        fecha=fecha_2
+        
+    # Registrar donaciones diarias
+    fundraiser.guardar_donaciones(fecha, recaudado)
+
+    # Guardar data en el archivo
+    fundraiser.guardar_en_archivo()
+
+    # Obtener totales diarios
+    total_1 = fundraiser.obtener_total_diario(fecha)
+    
+
+    print(f"Total recaudado en {fecha}: ${total_1}")
+
+def print_menu(menu):
+    print("Menu:")
+    for item, precio in menu.items():
+        print(f"{item}: ${precio:.2f}")
+
+def calcular_total(orden, menu):
+    costo_total = sum(menu[item] for item in orden)
+    return costo_total
+
+def buffet():
+    buffet_menu = {
+        "1) Desayuno": 2200,
+        "2) Almuerzo": 4000,
+        "3) Merienda": 2000,
+        "4) Cena": 4500,
+        "5) Refresco": 500,
+        "6) Agua": 400,
+    }
+
+    orden = []
+
+    while True:
+        print_menu(buffet_menu)
+        print("Ingrese el numerode las opciones que te gustaria agregar a tu pedido, o '0' para terminar la orden.")
+        opcion = input("Ingrese el numero de la opcion: ")
+
+        if opcion == '0':
+            break
+
+        try:
+            opcion = int(opcion)
+            if 1 <= opcion <= len(buffet_menu):
+                orden.append(list(buffet_menu.keys())[opcion - 1])
+            else:
+                print("Opcion invalida. Por favor ingrese el numero de vuelta")
+        except ValueError:
+            print("Input invalido. Ingrese el numero")
+
+    if not orden:
+        print("No hay items en tu orden.")
+    else:
+        costo_total = calcular_total(orden, buffet_menu)
+        print("Tu orden:")
+        for item in orden:
+            print(item)
+        print(f"Costo total: ${costo_total:.2f}")
+        recaudacion_diaria(costo_total,dt.date.today())
 
 class habitacion():
-    def _init_(self,nro, capacidad,precio):
-        self.nro = nro
+
+    def _init_(self,nro,capacidad,precio):
+        self.nro=nro
         self.capacidad = capacidad
         self.precio = precio
         
@@ -220,28 +273,28 @@ class hab_bas(habitacion): #Habitacion basica
             self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
 
 # Creacion de las habitaciones
-basica1 = hab_bas(101, 4, 1000)
-intermedia1 = hab_med(201, 2, 2000)
-premium1 = hab_prem(301, 2, 5000)
-basica2 = hab_bas(102, 3, 800)
-intermedia2 = hab_med(202, 4, 3000)
-premium2 = hab_prem(302, 2, 5000)
-basica3 = hab_bas(103, 6, 1500)
-intermedia3 = hab_med(203, 4, 3500)
-premium3 = hab_prem(303, 2, 5000)
-basica4 = hab_bas(104, 3, 800)
+# basica1 = hab_bas(101, 4, 1000)
+# intermedia1 = hab_med(201, 2, 2000)
+# premium1 = hab_prem(301, 2, 5000)
+# basica2 = hab_bas(102, 3, 800)
+# intermedia2 = hab_med(202, 4, 3000)
+# premium2 = hab_prem(302, 2, 5000)
+# basica3 = hab_bas(103, 6, 1500)
+# intermedia3 = hab_med(203, 4, 3500)
+# premium3 = hab_prem(303, 2, 5000)
+# basica4 = hab_bas(104, 3, 800)
 
-listahab = [] #Lista de todas las habitaciones(libres)
-listahab.append(basica1)
-listahab.append(intermedia1)
-listahab.append(premium1)
-listahab.append(basica2)
-listahab.append(intermedia2)
-listahab.append(premium2)
-listahab.append(basica3)
-listahab.append(intermedia3)
-listahab.append(premium3)
-listahab.append(basica4)
+# listahab = [] #Lista de todas las habitaciones(libres)
+# listahab.append(basica1)
+# listahab.append(intermedia1)
+# listahab.append(premium1)
+# listahab.append(basica2)
+# listahab.append(intermedia2)
+# listahab.append(premium2)
+# listahab.append(basica3)
+# listahab.append(intermedia3)
+# listahab.append(premium3)
+# listahab.append(basica4)
 
 listahabocupadas = [] #lista donde se meten todas las habitaciones ocupadas
 
