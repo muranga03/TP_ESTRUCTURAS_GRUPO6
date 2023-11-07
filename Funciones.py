@@ -207,7 +207,15 @@ juan = Cliente('Juan', 'Perez','Juanperez', 12345684, 'milei2023',2)
 quito = Cliente('Quito', 'nemen','quinem', 13429534, 'ninfa123',3)
 
 
-persona = Cliente("Pedro","Massalin","Pedrom",45617662,"massa123",1)
-persona2 = Cliente("Mato","U","matiu",45617663,"matiu123",2)
-lista = [persona,persona2]
-clientesArchivo(lista,"carga")
+def checkNro(numero):
+    while numero.isnumeric()==False:
+        numero = input("Ingrese un numero")
+    numero = int(numero)
+
+
+if __name__ == "__main__":
+    # persona = Cliente("Pedro","Massalin","Pedrom",45617662,"massa123")
+    # persona2 = Cliente("Mato","U","matiu",45617663,"matiu123")
+    # lista = [persona,persona2]
+    lista = []
+    lista = clientesArchivo(lista,"descarga")
