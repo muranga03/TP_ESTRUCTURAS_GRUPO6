@@ -147,7 +147,7 @@ class Recaudaciones:
         self.nombre_archivo = nombre_archivo
         self.bajar_de_archivo()
 
-    def guardar_donaciones(self, fecha, cant):
+    def guardar_recaudacion(self, fecha, cant):
         if fecha in self.total_diario:
             self.total_diario[fecha] += cant
         else:
@@ -182,7 +182,7 @@ def recaudacion_diaria(recaudado,fecha):
         fecha=fecha_2
         
     # Registrar donaciones diarias
-    fundraiser.guardar_donaciones(fecha, recaudado)
+    fundraiser.guardar_recaudacion(fecha, recaudado)
 
     # Guardar data en el archivo
     fundraiser.guardar_en_archivo()
@@ -440,6 +440,9 @@ class Administrativo(Personal):
 
     def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, sueldo):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña, sueldo)
+    
+    def ver_recaudacion_diaria(self):
+
     
     
         
