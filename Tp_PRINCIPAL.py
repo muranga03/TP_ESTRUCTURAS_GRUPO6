@@ -599,27 +599,37 @@ class Personal(Usuario):
         nombre=self.nombre
         apellido=self.apellido
         tipo=self.tipo
-        fecha_alta=dt.date.today()
+        fecha_alta=fecha_actual()
         historial_personal (legajo, nombre,apellido ,fecha_alta,tipo)
     
     def baja (self):
         legajo=self.nro_personal
         dar_baja_personal(legajo)
     
-    def asignar_tarea (self,tarea):
-        legajo=self.nro_personal
-        trabajos = self.trabajos
-        if tarea.lower() in trabajos:
-            asignar_tarea(legajo,tarea)
-        else:
-            print("La tarea no corresponde al tipo de empleado")
+    def borrar_primera_tarea(self): # En este metodo utilizamos una cola ya que la primer tarea en ser ingresada es la primera en ser realizada
+        nombre_archivo = f"tareas_{self.tipo}.txt"  
+        try:
+            with open(nombre_archivo, "r") as file:
+                tareas = file.readlines()
 
+            if not tareas:
+                print(f"No hay tareas en el archivo '{nombre_archivo}'.")
+                return
+
+            tareas.pop(0)  # Elimina la primera tarea
+
+            with open(nombre_archivo, "w") as file:
+                file.writelines(tareas)
+
+            print("La primera tarea ha sido eliminada con éxito.")
+        except IOError as e:
+            print(f"Error al eliminar la tarea: {e}")
 
 
 class Administrativo(Personal):
     tipo="Administrador"
     trabajos=["organizar evento","coordinar transporte","recibir al cliente"]
-
+    
     def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, sueldo):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña, sueldo)
     
@@ -629,7 +639,7 @@ class Administrativo(Personal):
         total=fundraiser.obtener_total_diario(fecha)
         print(f"Total recaudado en {fecha}: ${total}")
     
-    def eliminar_ultima_queja():        # Implemento una pila, siendo la ultima queja la primera en resolverse
+    def eliminar_ultima_queja(self):        # Implemento una pila, siendo la ultima queja la primera en resolverse
         try:
             with open("quejas.txt", "r") as file:
                 lines = file.readlines()
@@ -639,7 +649,7 @@ class Administrativo(Personal):
                 return
 
             while lines and lines[-1].strip() == "-" * 20:
-                lines.pop()  # Elimina el separador
+                lines.pop()  
                 if not lines:
                     print("No hay quejas registradas para eliminar.")
                     return
@@ -653,19 +663,31 @@ class Administrativo(Personal):
 
         except IOError as e:
             print(f"Error al eliminar la queja: {e}")
-        
-
     
+    def asignar_tarea (self,tarea,tipo):
+        if tipo == 1:
+            trabajos = Administrativo.trabajos
+        elif tipo ==2:
+            trabajos = Limpieza.trabajos
+        elif tipo ==3:
+            trabajos = Mantenimiento.trabajos
+        if tarea.lower() in trabajos:
+            nombre_archivo = f"tareas_{tipo}.txt"  
+            try:
+                with open(nombre_archivo, "a") as file:
+                    file.write(tarea + "\n")  
+                print(f"La tarea se ha guardado en el archivo '{nombre_archivo}' con éxito.")
+            except IOError as e:
+                print(f"Error al guardar la tarea en el archivo: {e}")
+        else:
+            print("La tarea no corresponde al tipo de empleado") 
     
-        
-
 class Limpieza(Personal):
     tipo="Limpiador"
     trabajos=["lavar cocina","limpiar cuartos","limpiar lobby"]
 
     def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, sueldo):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña, sueldo)
-
 
 class Mantenimiento(Personal):
     tipo="Mantenimiento"

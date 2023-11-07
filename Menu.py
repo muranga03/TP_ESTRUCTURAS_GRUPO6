@@ -11,6 +11,8 @@ personalArchivo(listaPersonal,"descarga")
 ocupActual = ocupacion_actual()
 ocupBas , ocupMed , ocupPrem = ocupacion_segun_tipo()
 opcion = True
+
+opcion = True
 while opcion:
     opcion = input("1: Crear cuenta \n2: Ingresar a su cuenta \n0: Salir del programa \n ->")
     opcion = checkNro(opcion)
