@@ -1,17 +1,23 @@
 import csv
-import matplotlib.pyplot as pplt
+# import matplotlib.pyplot as pplt
 from Tp_PRINCIPAL import *
 
-def logIn(listaUsuarios,usuario):
+def logIn(listaUsuarios):
     '''Esta funcion toma como parametro una lista con todos los usuarios creados y un nombre de usuario ingresado por el usuario
     y verifica si este nombre de usuario existe dentro de la lista al mismo tiempo verifica si la contraseña que ingresa el usuario
     coincide con el nombre de usuario. Si ingresa un usuario que no existe o si ingresa una contraseña erronea se devuelve FALSE, si la contraseña
     es la vinculada con el usuario entonces se devuelve TRUE. Esta funcion sirve tanto para Clientes como para el Personal'''
+    usuario = input("Ingrese su nombre de usuario\n ->")
+    if usuario == "admin":
+        contra = input("Ingrese su contraseña\n ->")
+        if contra == "admin":
+            admin = Administrativo("","","","","","")
+            return admin
     for usr in listaUsuarios:
         if usr.nombreusuario == usuario:
-            contra = input("ingrese su contraseña")
+            contra = input("Ingrese su contraseña\n ->")
             if contra == usr.contrasena:
-                return True
+                return usr
             else:
                 print("La contraseña es incorrecta")
                 return False
@@ -22,33 +28,33 @@ def signIn(listaClientes):
     '''Esta funcion recibe como parametro una lista con todos los usuarios creados y pide los datos necesarios para
     generar un nuevo usuario. En caso de que ya exista el usuario imprime que ese nombre de usuario ya esta siendo usado y pide uno nuevo.
     Esta funcion solo puede usarse para crear un cliente. El personal lo genera el Administrador'''
-    usuario = input("Ingrese su nombre de usuario, no puede tener espacios ni comas")
+    usuario = input("Ingrese su nombre de usuario, no puede tener espacios ni comas. Si desea salir ingrese 'quit'\n ->")
     while " " in usuario or "," in usuario:
-        print("Su nombre de usuario no debe contener ni espacios ni comas, ingrese un nombre nuevo. Si desea salir ingrese 'quit'")
-        usuario = input("Ingrese su nombre de usuario, no puede tener espacios ni comas")
+        usuario = input("Ingrese su nombre de usuario, no puede tener espacios ni comas. Si desea salir ingrese 'quit'\n ->")
         if usuario == "quit":
             return
-    for usr in listaClientes:
-        if usr.nombreusuario == usuario:
-            print("El usuario: " + usuario + " ya existe")
-            return
-        else:
-            nombre = input("Ingrese su nombre")
-            while nombre.isalpha()==False:
-                nombre = input("Ingrese su nombre solo con letras")
-            nombre = nombre.upper()
-            apellido = input("Ingrese su apellido")
-            while apellido.isalpha()==False:
-                apellido = input("Ingrese su apellido solo con letras")
-            apellido = nombre.upper()
-            dni = input("Ingrese su DNI")
-            while dni.isnumeric()==False or len(dni)!=8:
-                dni = input("Ingrese su DNI solo con numeros, debe tener 8 caracteres")
-            contra = input("Ingrese su contraseña, debe tener mas de 5 caracteres sin espacios ni comas")
-            while len(contra)<5 or ' ' in contra or ',' in contra:
-                contra = input("Ingrese su contraseña denuevo, debe contener al menos 5 caracteres y no puede contener espacios ni comas")
-            nuevoUsuario = Cliente(nombre,apellido,usuario,dni,contra)
-            listaClientes.append(nuevoUsuario)
+    if listaClientes != []:    
+        for usr in listaClientes:
+            if usr.nombreusuario == usuario:
+                print("El usuario: " + usuario + " ya existe")
+                return     
+    nombre = input("Ingrese su nombre\n ->")
+    while nombre.isalpha()==False:
+        nombre = input("Ingrese su nombre solo con letras\n ->")
+    nombre = nombre.upper()
+    apellido = input("Ingrese su apellido\n ->")
+    while apellido.isalpha()==False:
+        apellido = input("Ingrese su apellido solo con letras\n ->")
+    apellido = nombre.upper()
+    dni = input("Ingrese su DNI\n ->")
+    while dni.isnumeric()==False or len(dni)!=8:
+        dni = input("Ingrese su DNI solo con numeros, debe tener 8 caracteres\n ->")
+    contra = input("Ingrese su contraseña, debe tener mas de 5 caracteres sin espacios ni comas\n ->")
+    while len(contra)<5 or ' ' in contra or ',' in contra:
+        contra = input("Ingrese su contraseña denuevo, debe contener al menos 5 caracteres y no puede contener espacios ni comas\n ->")
+    nuevoUsuario = Cliente(nombre,apellido,usuario,dni,contra)
+    listaClientes.append(nuevoUsuario)
+
     
 def clientesArchivo(listaClientes,instancia):
     '''Esta funcion toma como parametros la lista de los clientes para poder cargar los clientes creados en un archivo al finalizar la ejecucion
@@ -65,7 +71,7 @@ def clientesArchivo(listaClientes,instancia):
                     listaClientes.append(cliente)
                 return listaClientes
         except FileNotFoundError:
-            return
+            return listaClientes
 
     elif instancia == 'carga':
         lista = []
@@ -96,7 +102,7 @@ def personalArchivo(listaPersonal,instancia):
                     listaPersonal.append(personal)
                 return listaPersonal
         except FileNotFoundError:
-            return
+            return listaPersonal
 
     elif instancia == 'carga':
         lista = []
@@ -171,46 +177,84 @@ def ocupacion_segun_tipo(): #Obtiene y procesa los datos desde la lista de habit
         escritor.writerow(info_prem)
     return por_ocup_bas, por_ocup_med, por_ocup_prem
 
-def analisis_ocupacion(): #Genera un grafico de la ocupacion del hotel a lo largo del tiempo, si no hay informacion, devuelve la ocupacion actual
-    file = 'ocupacion_diaria.csv'
-    lista = []
-    hoy = fecha_actual
-    lista_y = [] #Datos que en graficos iran en eje y
-    lista_x = []#Datos que en graficos iran en eje x
-    try:
-        with open(file, 'r',encoding = 'utf-8') as archivo:
-            lector = csv.reader(archivo)
-            for fila in lector:
-                lista.append(fila)
-        for i in lista:#Paso datos a listas
-            if len(i) == 2:
-                i[1] = float(i[1])
-                lista_y.append(i[1])
-                dia = i[0][5:]
-                lista_x.append(dia)
-        pplt.plot(lista_x,lista_y)
-        pplt.xlabel('Fecha')
-        pplt.ylabel('Porcentaje de Ocupacion (%)')
-        pplt.show()
-    except  FileNotFoundError:
-        ocupacion = ocupacion_actual()
-        with open(file, 'w',newline = '',encoding = 'utf-8') as archivo:
-            escritor = csv.writer(archivo)
-            escritor.writerow([hoy, ocupacion])
-        print('Solo se encontró un registro de la ocupación diaria')
-        print('El porcentaje de ocupacion de la fecha: ', hoy, 'fue del :', ocupacion, '%')
-
-
-
-marcos = Cliente('marcos','viegener', 'marcosvieg', 45014484, 'menemalreves',1)
-juan = Cliente('Juan', 'Perez','Juanperez', 12345684, 'milei2023',2)
-quito = Cliente('Quito', 'nemen','quinem', 13429534, 'ninfa123',3)
-
+# def analisis_ocupacion(): #Genera un grafico de la ocupacion del hotel a lo largo del tiempo, si no hay informacion, devuelve la ocupacion actual
+#     file = 'ocupacion_diaria.csv'
+#     lista = []
+#     hoy = fecha_actual
+#     lista_y = [] #Datos que en graficos iran en eje y
+#     lista_x = []#Datos que en graficos iran en eje x
+#     try:
+#         with open(file, 'r',encoding = 'utf-8') as archivo:
+#             lector = csv.reader(archivo)
+#             for fila in lector:
+#                 lista.append(fila)
+#         for i in lista:#Paso datos a listas
+#             if len(i) == 2:
+#                 i[1] = float(i[1])
+#                 lista_y.append(i[1])
+#                 dia = i[0][5:]
+#                 lista_x.append(dia)
+#         pplt.plot(lista_x,lista_y)
+#         pplt.xlabel('Fecha')
+#         pplt.ylabel('Porcentaje de Ocupacion (%)')
+#         pplt.show()
+#     except  FileNotFoundError:
+#         ocupacion = ocupacion_actual()
+#         with open(file, 'w',newline = '',encoding = 'utf-8') as archivo:
+#             escritor = csv.writer(archivo)
+#             escritor.writerow([hoy, ocupacion])
+#         print('Solo se encontró un registro de la ocupación diaria')
+#         print('El porcentaje de ocupacion de la fecha: ', hoy, 'fue del :', ocupacion, '%')
 
 def checkNro(numero):
     while numero.isnumeric()==False:
-        numero = input("Ingrese un numero")
+        numero = input("Solo debe contener numeros\n ->")
     numero = int(numero)
+    return numero
+
+def crearPersonal(tipo,listaPersonal):
+    '''Toma como parametro "Tipo" que es un numero del 0 - 3 y pide las variables necesarias para poder crear
+    una nueva cuenta de personal. Tambien toma listaPersonal para poder agregarle la nueva cuenta.
+            0 : Salir
+            1 : Cuenta de Administrador
+            2 : Cuenta de Limpieza
+            3 : Cuenta de Mantenimiento'''
+    if tipo != 0:
+        usuario = input("Ingrese su nombre de usuario, no puede tener espacios ni comas. Si desea salir ingrese 'quit'\n ->")
+        while " " in usuario or "," in usuario:
+            usuario = input("Ingrese su nombre de usuario, no puede tener espacios ni comas. Si desea salir ingrese 'quit'\n ->")
+            if usuario == "quit":
+                return
+        if listaPersonal != []:    
+            for usr in listaPersonal:
+                if usr.nombreusuario == usuario:
+                    print("El usuario: " + usuario + " ya existe")
+                    return     
+        nombre = input("Ingrese el nombre\n ->")
+        while nombre.isalpha()==False:
+            nombre = input("Ingrese el nombre solo con letras\n ->")
+        nombre = nombre.upper()
+        apellido = input("Ingrese el apellido\n ->")
+        while apellido.isalpha()==False:
+            apellido = input("Ingrese el apellido solo con letras\n ->")
+        apellido = nombre.upper()
+        dni = input("Ingrese el DNI\n ->")
+        while dni.isnumeric()==False or len(dni)!=8:
+            dni = input("Ingrese el DNI solo con numeros, debe tener 8 caracteres\n ->")
+        contra = input("Ingrese la contraseña, debe tener mas de 5 caracteres sin espacios ni comas\n ->")
+        while len(contra)<5 or ' ' in contra or ',' in contra:
+            contra = input("Ingrese la contraseña denuevo, debe contener al menos 5 caracteres y no puede contener espacios ni comas\n ->")
+        sueldo = input("Ingrese el sueldo\n ->")
+        while sueldo.isnumeric()==False or sueldo <= 0:
+            sueldo = input("Ingrese el sueldo solo con numeros, debe ser positivo\n ->")
+        if tipo == 1:
+            nuevoPersonal = Administrativo(nombre,apellido,usuario,dni,contra,sueldo)
+        if tipo == 2:
+            nuevoPersonal = Limpieza(nombre,apellido,usuario,dni,contra,sueldo)
+        if tipo == 3:
+            nuevoPersonal = Mantenimiento(nombre,apellido,usuario,dni,contra,sueldo)
+        listaPersonal.append(nuevoPersonal)
+
 
 
 if __name__ == "__main__":
