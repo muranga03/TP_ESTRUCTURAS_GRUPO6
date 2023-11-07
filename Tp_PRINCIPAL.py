@@ -22,7 +22,8 @@ def fecha_actual():
 hoy = fecha_actual()
 
 
-def ingreso_archivo (legajo, fecha, var):
+def ingreso_archivo (legajo, var):
+    fecha=fecha_actual()
     if var :
         # Utilizo esta parte de la funcion para ingresar los datos del ingreso del personal a un archivo
         try:
@@ -54,9 +55,9 @@ def ingreso_archivo (legajo, fecha, var):
             fd.write('\n')
             fd.close()
         
-def egreso_archivo(legajo, fecha_egreso):
+def egreso_archivo(legajo):
 # traigo el archivo de ingreso y verifico que la fecha de egreso sea posterior a la de ingreso de un legajo
-
+    fecha_egreso=fecha_actual()
     lista=[]
     FILE= "ingreso.txt"
     try:
@@ -78,8 +79,9 @@ def egreso_archivo(legajo, fecha_egreso):
     else:
         print("La fecha de egreso es menor que la fecha de ingreso")   
 
-def historial_personal (legajo, nombre,apellido ,fecha,tipo):
+def historial_personal (legajo, nombre,apellido,tipo):
     # Utilizo esta funcion para crear el archivo con el historial de fecha de altas y bajas de cada empleado
+    fecha=fecha_actual()
     try:
         fd= open("Historial_del_personal.txt", "a")
         fd.write("La persona, ")
@@ -154,7 +156,7 @@ def dar_baja_personal(legajo):
     for i in range(len(lista)):
         if int(lista[i][2])== int(legajo):
             lista[i].append(" y la fecha de baja es ")
-            fecha=dt.date.today()
+            fecha=fecha_actual()
             lista[i].append(str(fecha))
     with open(FILE, 'w', newline='', encoding='utf-8') as archivo:
                 escritor = csv.writer(archivo)
@@ -194,9 +196,9 @@ class Recaudaciones:
         except FileNotFoundError:
             print(f"Creando archivo {self.nombre_archivo}")
 
-def recaudacion_diaria(recaudado,fecha):
+def recaudacion_diaria(recaudado):
     fundraiser = Recaudaciones("Recaudaciones.txt")
-    
+    fecha=fecha_actual()
     if type(fecha)==dt.date:
         fecha_2 = fecha.strftime('%Y-%m-%d')
         fecha=fecha_2
@@ -221,45 +223,6 @@ def print_menu(menu):
 def calcular_total(orden, menu):
     costo_total = sum(menu[item] for item in orden)
     return costo_total
-
-def buffet():
-    buffet_menu = {
-        "1) Desayuno": 2200,
-        "2) Almuerzo": 4000,
-        "3) Merienda": 2000,
-        "4) Cena": 4500,
-        "5) Refresco": 500,
-        "6) Agua": 400,
-    }
-
-    orden = []
-
-    while True:
-        print_menu(buffet_menu)
-        print("Ingrese el numerode las opciones que te gustaria agregar a tu pedido, o '0' para terminar la orden.")
-        opcion = input("Ingrese el numero de la opcion: ")
-
-        if opcion == '0':
-            break
-
-        try:
-            opcion = int(opcion)
-            if 1 <= opcion <= len(buffet_menu):
-                orden.append(list(buffet_menu.keys())[opcion - 1])
-            else:
-                print("Opcion invalida. Por favor ingrese el numero de vuelta")
-        except ValueError:
-            print("Input invalido. Ingrese el numero")
-
-    if not orden:
-        print("No hay items en tu orden.")
-    else:
-        costo_total = calcular_total(orden, buffet_menu)
-        print("Tu orden:")
-        for item in orden:
-            print(item)
-        print(f"Costo total: ${costo_total:.2f}")
-        recaudacion_diaria(costo_total,dt.date.today())
 
 class habitacion():
 
@@ -560,8 +523,56 @@ class Cliente(Usuario):
                 bpo = i.banopriv
                 habo = [noc, co, po, cato, bo, bpo]
                 escritor.writerow(habo) 
+    
     def buffet():
-        pass
+        
+        buffet_menu = {
+            "1) Desayuno": 2200,
+            "2) Almuerzo": 4000,
+            "3) Merienda": 2000,
+            "4) Cena": 4500,
+            "5) Refresco": 500,
+            "6) Agua": 400,
+        }
+
+        orden = []
+
+        while True:
+            print_menu(buffet_menu)
+            print("Ingrese el numerode las opciones que te gustaria agregar a tu pedido, o '0' para terminar la orden.")
+            opcion = input("Ingrese el numero de la opcion: ")
+
+            if opcion == '0':
+                break
+
+            try:
+                opcion = int(opcion)
+                if 1 <= opcion <= len(buffet_menu):
+                    orden.append(list(buffet_menu.keys())[opcion - 1])
+                else:
+                    print("Opcion invalida. Por favor ingrese el numero de vuelta")
+            except ValueError:
+                print("Input invalido. Ingrese el numero")
+
+        if not orden:
+            print("No hay items en tu orden.")
+        else:
+            costo_total = calcular_total(orden, buffet_menu)
+            print("Tu orden:")
+            for item in orden:
+                print(item)
+            print(f"Costo total: ${costo_total:.2f}")
+            recaudacion_diaria(costo_total)
+
+    def presentar_queja(self, queja):
+        try:
+            with open("quejas.txt", "a") as file:
+                file.write(f"Cliente: {self.nro_cliente}, ")
+                file.write(f"Queja: {queja}\n")
+                file.write("-" * 20 + "\n")  # Separador
+            print("Tu queja ha sido registrada con éxito. Gracias por tu retroalimentación.")
+        except IOError as e:
+            print(f"Error al guardar la queja: {e}")    
     
 
 
@@ -612,7 +623,37 @@ class Administrativo(Personal):
     def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, sueldo):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña, sueldo)
     
-    #def ver_recaudacion_diaria(self):
+    def ver_recaudacion_diaria(self,fecha):
+        self.fecha=fecha
+        fundraiser = Recaudaciones("Recaudaciones.txt")
+        total=fundraiser.obtener_total_diario(fecha)
+        print(f"Total recaudado en {fecha}: ${total}")
+    
+    def eliminar_ultima_queja():        # Implemento una pila, siendo la ultima queja la primera en resolverse
+        try:
+            with open("quejas.txt", "r") as file:
+                lines = file.readlines()
+
+            if not lines:
+                print("No hay quejas registradas para eliminar.")
+                return
+
+            while lines and lines[-1].strip() == "-" * 20:
+                lines.pop()  # Elimina el separador
+                if not lines:
+                    print("No hay quejas registradas para eliminar.")
+                    return
+
+            lines.pop()  # Elimina la última queja
+
+            with open("quejas.txt", "w") as file:
+                file.writelines(lines)
+
+            print("La última queja ha sido eliminada con éxito.")
+
+        except IOError as e:
+            print(f"Error al eliminar la queja: {e}")
+        
 
     
     
