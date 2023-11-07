@@ -2,6 +2,26 @@ import datetime as dt
 import csv
 from datetime import datetime
 
+def fecha_actual():
+    pf = 'fecha_actual.txt'
+    try:
+        archivo = open(pf, 'r')
+        fechastr = archivo.readline()
+        archivo.close()
+        fecha = dt.datetime.strptime(fechastr, '%Y-%m-%d').date()
+        fecha = fecha + dt.timedelta(days = 1)
+        archivo = archivo = open(pf, 'w')
+        archivo.write(str(fecha))
+        archivo.close()
+    except FileNotFoundError:
+        fecha = str(dt.datetime.today().date())
+        archivo = open(pf, 'w')
+        archivo.write(fecha)
+        archivo.close()
+    return fecha
+hoy = fecha_actual()
+
+
 def ingreso_archivo (legajo, fecha, var):
     if var :
         # Utilizo esta parte de la funcion para ingresar los datos del ingreso del personal a un archivo
@@ -128,7 +148,7 @@ def dar_baja_personal(legajo):
             for fila in lector:
                 lista.append(fila)
         
-        
+
     except FileNotFoundError:  
         print("El archivo", FILE, "no existe.")
     for i in range(len(lista)):
@@ -272,32 +292,108 @@ class hab_bas(habitacion): #Habitacion basica
             self. banopriv = banopriv
             self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
 
-# Creacion de las habitaciones
-# basica1 = hab_bas(101, 4, 1000)
-# intermedia1 = hab_med(201, 2, 2000)
-# premium1 = hab_prem(301, 2, 5000)
-# basica2 = hab_bas(102, 3, 800)
-# intermedia2 = hab_med(202, 4, 3000)
-# premium2 = hab_prem(302, 2, 5000)
-# basica3 = hab_bas(103, 6, 1500)
-# intermedia3 = hab_med(203, 4, 3500)
-# premium3 = hab_prem(303, 2, 5000)
-# basica4 = hab_bas(104, 3, 800)
 
-# listahab = [] #Lista de todas las habitaciones(libres)
-# listahab.append(basica1)
-# listahab.append(intermedia1)
-# listahab.append(premium1)
-# listahab.append(basica2)
-# listahab.append(intermedia2)
-# listahab.append(premium2)
-# listahab.append(basica3)
-# listahab.append(intermedia3)
-# listahab.append(premium3)
-# listahab.append(basica4)
+def crear_habitaciones():
+    basica1 = hab_bas(101, 4, 1000)
+    intermedia1 = hab_med(201, 2, 2000)
+    premium1 = hab_prem(301, 2, 5000)
+    basica2 = hab_bas(102, 3, 800)
+    intermedia2 = hab_med(202, 4, 3000)
+    premium2 = hab_prem(302, 2, 5000)
+    basica3 = hab_bas(103, 6, 1500)
+    intermedia3 = hab_med(203, 4, 3500)
+    premium3 = hab_prem(303, 2, 5000)
+    basica4 = hab_bas(104, 3, 800)
+    basica4 = hab_bas(104, 3, 800)
+    intermedia4 = hab_bas(204,2,2000)
+    premium4 = hab_bas(304,2,5000)
+    listahab = [] #Lista de todas las habitaciones(libres)
+    listahab.append(basica1)
+    listahab.append(intermedia1)
+    listahab.append(premium1)
+    listahab.append(basica2)
+    listahab.append(intermedia2)
+    listahab.append(premium2)
+    listahab.append(basica3)
+    listahab.append(intermedia3)
+    listahab.append(premium3)
+    listahab.append(basica4)
+    listahab.append(intermedia4)
+    listahab.append(premium4)
+    return listahab
+
+
 
 listahabocupadas = [] #lista donde se meten todas las habitaciones ocupadas
 
+def escribir_habitaciones(listahab):
+    lista_archivo = [] #Lista de listas que se carga al archivo, para asi almacenar la inforamcion
+    for i in listahab:
+        habitacion = []
+        nro = int(i.nro)
+        capacidad =int(i.capacidad)
+        precio = int(i.precio)
+        categoria= i.categoria
+        balcon= bool(i.balcon)
+        banopriv= bool(i.banopriv) 
+        habitacion.append(nro)
+        habitacion.append(capacidad)
+        habitacion.append(precio)
+        habitacion.append(categoria)
+        habitacion.append(balcon)
+        habitacion.append(banopriv)
+        lista_archivo.append(habitacion)
+    pf = 'habitaciones.csv'
+    with open(pf, 'w', newline='', encoding='utf-8') as archivo:
+        escritor = csv.writer(archivo)
+        for j in lista_archivo:
+            escritor.writerow(j)
+    return listahab
+
+def cargar_habitaciones(): #Carga habitaciones desde archivo
+    pf = 'habitaciones.csv'
+    listahab = []
+    try:  
+        with open(pf, 'r', encoding='utf-8') as archivo:
+            lector = csv.reader(archivo)
+            for fila in lector:
+                nro = int(fila[0])
+                capacidad =int(fila[1])
+                precio = int(fila[2])
+                categoria = (fila[3])  
+                if categoria == 'Premium':
+                    habitacion = hab_prem(nro,capacidad,precio)   
+                elif categoria == 'Intermedia':
+                    habitacion = hab_med(nro,capacidad,precio)
+                elif categoria == 'Basica':
+                    habitacion = hab_bas(nro,capacidad,precio)
+                listahab.append(habitacion)                
+    except FileNotFoundError: #Si no lo encuentra, lo crea
+        listahab = crear_habitaciones()
+        listahab = escribir_habitaciones(listahab)
+    return listahab
+
+def habitaciones_ocupadas():
+    pf = 'habitaciones_ocupadas.csv'
+    listahabocupadas = []
+    try:  
+        with open(pf, 'r', encoding='utf-8') as archivo:
+            lector = csv.reader(archivo)
+            for fila in lector:
+                nro = int(fila[0])
+                capacidad =int(fila[1])
+                precio = int(fila[2])
+                categoria = (fila[3])  
+                if categoria == 'Premium':
+                    habitacion = hab_prem(nro,capacidad,precio)   
+                elif categoria == 'Intermedia':
+                    habitacion = hab_med(nro,capacidad,precio)
+                elif categoria == 'Basica':
+                    habitacion = hab_bas(nro,capacidad,precio)        
+                listahabocupadas.append(habitacion)
+    except FileNotFoundError:
+        fd =  open(pf, 'x', encoding='utf-8')
+    return listahabocupadas
 
 class Usuario:
     def __init__(self,nombre,apellido,nombreusuario,dni,contrasena):
@@ -315,55 +411,96 @@ class Cliente(Usuario):
         Cliente.numero+=1
     def check_in(self):
         FILE = str(self.dni) + '_historial.csv'
+        hora = dt.datetime.now().strftime("%H:%M")
         lista = []
-        try:
+        multa = 0
+        listahab = cargar_habitaciones()
+        listahabocupadas = habitaciones_ocupadas()
+        try: # Probamos el siguiente código
             with open(FILE, 'r', encoding='utf-8') as archivo:
                 lector = csv.reader(archivo)
                 for fila in lector:
                     lista.append(fila)
-        except FileNotFoundError:  
+        except FileNotFoundError:  # Si se encuentra un error se ejecuta esta parte
             print("El archivo", FILE, "no existe. Se creará el archivo", FILE)
             with open(FILE,'a', encoding = 'utf-8') as archivo:
                 lista.append(['DNI','Habitacion','Fecha Check-in','Fecha Check-Out'])
                 escritor = csv.writer(archivo)
                 for fila in lista:
                     escritor.writerow(fila)
-        nrohab = int(input('Ingrese la habitacion deseada'))
-        fci = dt.datetime.today().date()
-        fco = None
-        lista_reserva = [self.dni, nrohab, fci, fco]
-        lista.append(lista_reserva)
-        with open(FILE, 'w', newline='', encoding='utf-8') as archivo:
-            escritor = csv.writer(archivo)
-            for reserva in lista:
-                escritor.writerow(reserva)
-        existe = False
-        ocupado = False
-        while existe == False and ocupado == False:
-            nrohab = int(input('Ingrese la habitacion deseada'))
+        activo = False #Variable que me dice si ya esta en el hotel (Solo se puede hacer una reserva a la vez)
+        if len(lista)>1 and lista[len(lista)-1][3] == '':
+            activo = True
+        if activo == False:
+            existe = False
+            ocupado = False
+            while existe == False or ocupado == True:
+                nrohab = (input('Ingrese la habitacion deseada'))
+                try:
+                    existe = False
+                    ocupado = False
+                    nrohab = int(nrohab)
+                    for i in listahab:
+                        if i.nro == nrohab:
+                            existe = True
+                    for i in listahabocupadas:
+                        if i.nro ==nrohab:
+                            ocupado = True
+                    if ocupado == True:
+                        print('Esta habitación esta ocupada')
+                    if existe == False:
+                        print('Esta habitacion no existe')
+                except ValueError:
+                    print('Escriba el numero de habitacion Correctamente')
+
+            fp = 'habitaciones_ocupadas.csv'
             for i in listahab:
                 if i.nro == nrohab:
-                    existe = True
-            for i in listahabocupadas:
-                if i.nro ==nrohab:
-                    ocupado = True
-                    print('Esa habitación esta ocupada')
-        if existe ==False:
-            print('Esa habitación no existe')
-        
-        for i in listahab:
-            if i.nro == nrohab:
-                listahabocupadas.append(i)
-                listahab.remove(i)
+                    listahabocupadas.append(i)
+                    noc = i.nro
+                    co = i.capacidad
+                    po = i.precio
+                    cato = i.categoria
+                    bo = i.balcon
+                    bpo = i.banopriv
+                    habo = [noc, co, po, cato, bo, bpo]
+                    print('Usted ha ingresado a la habitación', noc)
+            with open (fp, 'a', newline = '', encoding = 'utf-8')as arc:
+                escritor = csv.writer(arc)
+                escritor.writerow(habo)
+            if hora < '09:00' or hora > '18:00':
+                multa = 500
+                descripcionmulta = 'Multa por check in fuera de horario establecido'
+            fci = hoy
+            fco = None
+            lista_reserva = [self.dni, nrohab, fci, fco]
+            lista.append(lista_reserva)
+            with open(FILE, 'w', newline='', encoding='utf-8') as archivo:
+                escritor = csv.writer(archivo)
+                for reserva in lista:
+                    escritor.writerow(reserva)
+            file2 =   str(self.dni) + '_gastos.csv'
+            if multa > 0:
+                with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
+                    writer =csv.writer(registro)
+                    gasto = [multa, descripcionmulta]
+                    writer.writerow(gasto)
+            
+        else:
+            print('Usted ya esta ocupando una habitación')  
+
     def check_out(self,dias):
         FILE = str(self.dni) + '_historial.csv'
         lista = []
-        try: 
+        multa = 0
+        hora = dt.datetime.now().strftime("%H:%M")
+        listahabocupadas = habitaciones_ocupadas()
+        try: # Probamos el siguiente código
             with open(FILE, 'r', encoding='utf-8') as archivo:
                 lector = csv.reader(archivo)
                 for fila in lector:
                     lista.append(fila)
-        except FileNotFoundError:  
+        except FileNotFoundError:  # Si se encuentra un error se ejecuta esta parte
             print("El archivo", FILE, "no existe. Se creará el archivo", FILE)
             with open(FILE,'a', encoding = 'utf-8') as archivo:
                 lista.append(['DNI','Habitacion','Fecha Check-in','Fecha Check-Out'])
@@ -371,24 +508,58 @@ class Cliente(Usuario):
                 for fila in lista:
                     escritor.writerow(fila)
         if len(lista)>1 and lista[len(lista)-1][3] == '':
+            fco = hoy
             fcistr = lista[len(lista)-1][2]
-            fci = dt.datetime.strptime(fcistr, '%Y-%m-%d').date()
-            fco = fci + dt.timedelta(days=dias)
-            lista[len(lista)-1][3] = fco
-            nrohab = lista[len(lista)-1][1]
+            fci =dt.datetime.strptime(fcistr, '%Y-%m-%d').date()
+            duracion = str(fco -fci)
+            listo = False
+            digito = ''
+            for i in duracion:
+                if i.isdigit() and listo == False:
+                    digito += i
+                if i == ' ':
+                    listo = True
+            dias = int(digito)    
+            nrohab = int(lista[len(lista)-1][1])
             for i in listahabocupadas:
                 if i.nro == nrohab:
-                    listahab.append(i)
+                    montodiario = i.precio
                     listahabocupadas.remove(i)
+            lista[len(lista)-1][3] = fco
             with open(FILE, 'w', newline='', encoding='utf-8') as archivo:
                 escritor = csv.writer(archivo)
                 for reserva in lista:
                     escritor.writerow(reserva)
+            if hora < '09:00' or hora > '18:00':
+                multa = 500
+                descripcionmulta = 'Multa por check out fuera de horario establecido'
+            montotot = dias*montodiario
+            descripcion = 'Estadia desde ' + str(fci) + ' hasta ' + str(fco)
+            file2 =   str(self.dni) + '_gastos.csv'
+            with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
+                writer =csv.writer(registro)
+                gasto = [montotot, descripcion]
+                writer.writerow(gasto)
+                if multa > 0:
+                    gasto2 = [multa, descripcionmulta]
+                    writer.writerow(gasto2) 
         else: 
             if len(lista)==1: 
                 print('Aún no ha hecho reservas')
             if lista[len(lista)-1][3] != '':
                 print('Usted ya ha terminado todas sus reservas')
+        fp = 'habitaciones_ocupadas.csv'
+        with open (fp, 'w', newline = '', encoding = 'utf-8')as arc:
+            escritor = csv.writer(arc)
+            for i in listahabocupadas:
+                noc = i.nro
+                co = i.capacidad
+                po = i.precio
+                cato = i.categoria
+                bo = i.balcon
+                bpo = i.banopriv
+                habo = [noc, co, po, cato, bo, bpo]
+                escritor.writerow(habo) 
     def buffet():
         pass
     
@@ -441,7 +612,7 @@ class Administrativo(Personal):
     def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, sueldo):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña, sueldo)
     
-    def ver_recaudacion_diaria(self):
+    #def ver_recaudacion_diaria(self):
 
     
     
