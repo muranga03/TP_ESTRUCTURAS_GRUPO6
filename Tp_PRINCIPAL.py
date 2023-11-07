@@ -258,7 +258,7 @@ class hab_prem(habitacion): #Habitacion Suite/Familiar
         
 class hab_med(habitacion): #Habitacion media
     def __init__(self,nro, capacidad,precio, categoria = 'Intermedia', balcon = False, banopriv= True):
-        super()._init_(nro, capacidad,precio)
+        super().__init__(nro, capacidad,precio)
         self.categoria = categoria
         self.balcon = balcon
         self. banopriv = banopriv
@@ -266,7 +266,7 @@ class hab_med(habitacion): #Habitacion media
 
 class hab_bas(habitacion): #Habitacion basica
     def __init__(self,nro, capacidad,precio, categoria = 'Basica', balcon = False, banopriv= False):
-            super()._init_(nro, capacidad,precio)
+            super().__init__(nro, capacidad,precio)
             self.categoria = categoria
             self.balcon = balcon
             self. banopriv = banopriv
