@@ -243,21 +243,21 @@ def buffet():
 
 class habitacion():
 
-    def _init_(self,nro,capacidad,precio):
+    def __init__(self,nro,capacidad,precio):
         self.nro=nro
         self.capacidad = capacidad
         self.precio = precio
         
 class hab_prem(habitacion): #Habitacion Suite/Familiar
-    def _init_(self,nro, capacidad,precio, categoria = 'Premium', balcon = True, banopriv= True):
-        super()._init_(nro, capacidad,precio)
+    def __init__(self,nro, capacidad,precio, categoria = 'Premium', balcon = True, banopriv= True):
+        super().__init__(nro, capacidad,precio)
         self.categoria = categoria
         self.balcon = balcon
         self. banopriv = banopriv
         self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
         
 class hab_med(habitacion): #Habitacion media
-    def _init_(self,nro, capacidad,precio, categoria = 'Intermedia', balcon = False, banopriv= True):
+    def __init__(self,nro, capacidad,precio, categoria = 'Intermedia', balcon = False, banopriv= True):
         super()._init_(nro, capacidad,precio)
         self.categoria = categoria
         self.balcon = balcon
@@ -265,7 +265,7 @@ class hab_med(habitacion): #Habitacion media
         self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
 
 class hab_bas(habitacion): #Habitacion basica
-    def _init_(self,nro, capacidad,precio, categoria = 'Basica', balcon = False, banopriv= False):
+    def __init__(self,nro, capacidad,precio, categoria = 'Basica', balcon = False, banopriv= False):
             super()._init_(nro, capacidad,precio)
             self.categoria = categoria
             self.balcon = balcon
