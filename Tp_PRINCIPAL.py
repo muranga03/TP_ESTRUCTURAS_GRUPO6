@@ -162,6 +162,159 @@ def dar_baja_personal(legajo):
                 escritor = csv.writer(archivo)
                 for reserva in lista:
                     escritor.writerow(reserva)
+                    
+class Reserva:
+    def __init__(self, habit, usuario, entrada, salida):
+        self.habit = habit
+        self.usuario = usuario
+        self.entrada = entrada
+        self.salida = salida
+        self.prox = None
+class Lista_reservas:
+    def __init__(self):
+        self.head = None
+
+    def is_empty(self):
+        return self.head is None
+    
+
+        
+    def subir_lista_reservas(self): #Sube los cambios a un archivo, para guardar la información
+        FILE = 'lista_reservas.csv'
+        with open(FILE, 'a', newline = '', encoding = 'utf-8') as archivo:
+            escritor = csv.writer(archivo)
+            if self.is_empty():
+                return
+            current = self.head
+            while current:
+                lista = []
+                lista.append(current.usuario.dni)
+                lista.append(current.habit.nro)
+                lista.append(current.entrada)
+                lista.append(current.salida)
+                escritor.writerow(lista)
+                current = current.prox
+        return
+    def agregar_reserva(self,habit, usuario, fecha_ent, fecha_sal):
+        new_node=Reserva(habit, usuario, fecha_ent, fecha_sal)
+        if self.is_empty():
+            self.head = new_node
+            return
+        current = self.head
+        while current.prox:
+            current = current.prox
+        current.prox = new_node
+        self.subir_lista_reservas()
+    def eliminar_reserva(self, nrodni):
+        '''
+        Este método busca el primer nodo cuyo valor se corresponde al argumento y lo desenlaza. 
+        
+        '''
+        if self.is_empty():
+            return
+
+        if self.head.usuario.dni == nrodni:
+            self.head = self.head.prox
+            return
+
+        current = self.head
+        while current.prox:
+            if current.prox.usuario.dni == nrodni:
+                current.prox = current.prox.prox
+                return
+            else: 
+                current = current.prox
+        self.subir_lista_reservas()
+        
+    def buscar_cuarto(self, nrohab): #Si el valor de encontrado es False, esta funcion me deja directamente hacer la reserva para ese cuarto 
+        current = self.head
+        encontrado = False
+        if self.is_empty():
+            print('No hay reservas hechas')
+            return encontrado
+        while current:
+            if current.habit.nro == nrohab:
+                encontrado = True
+            else: 
+                current = current.prox
+        return encontrado
+    def buscar_cliente(self, nrodni):#Funcion que me sirve para ver si el cliente tiene o no reservas hechas, (el cliente solo puede tener una reserva a la vez)
+        current = self.head
+        encontrado = False
+        if self.is_empty():
+            print('No hay reservas, está habilitado a hacer reservas')
+            return encontrado
+        while current:
+            if current.usuario.dni == nrodni:
+                encontrado = True 
+            else: 
+                current = current.prox
+        return encontrado
+    def confirmar_entrada(self,nrohab,entrada, salida): #entrada y salida son las fechas de reserva que pide el usuario
+        current = self.head
+        habilitado = True #Decide si esta bien pedida esta reserva, si es False no esta bien, si es True, si
+        if self.is_empty():
+            return habilitado
+        while current: #Checkeo para todas las reservas, que cambie el valor de habilitado, cuando se termine de verificar me dira si esta bien o no
+            if current.habit.nro == nrohab:
+                if current.entrada > entrada: #si la fecha de entrada de reserva es mayor a la pedida, tengo que checkear que la fecha de salida pedida sea menor a la entrada de la reserva
+                    if current.entrada > salida:
+                        habilitado = True #Como las fechas de entrada y salida son menores a la de entrada y reserva, se puede hacer la reserva (con la informacion que tenemos, despues hay que seguir checkeando el resto de las reservas)
+                    else:
+                        habilitado = False
+                elif current.entrada < entrada < current.salida: #La entrada no puede pisarse con otra estadia
+                    habilitado = False
+                elif current.salida < entrada: #Si la fecha de entrada pedida, es mayor a la de salida de la resrva, todo ok
+                    habilitado = True
+            else:
+                current = current.prox
+        return habilitado
+    def recorrer_para_check_in(self,hoy): #Funcion que recorre la lista todos los dias, para hacer 'entrar' a los clientes
+        current = self.head
+        encontrado = False
+        if self.is_empty():
+            print('No hay reservas hechas')
+            return encontrado
+        while current:
+            if current.entrada == hoy:
+                current.usuario.check_in()
+                current = current.prox
+            else:
+                current = current.prox
+    def recorrer_para_check_out(self,hoy):
+        '''
+        Este metodo recorre la lista, y le hace el checkout a las reservas cuya fecha es igual a la fecha actual
+        '''
+        if self.is_empty():
+            return
+
+        elif self.head.salida == hoy:
+            self.head = self.head.prox
+            return
+
+        current = self.head
+        while current.prox:
+            if current.prox.salida == hoy:
+                current.prox.usuario.check_out()
+                current.prox = current.prox.prox
+                return
+            else: 
+                current = current.prox
+                
+        self.subir_lista_reservas()
+    def habitaciones_con_reservas(self): #Funcion que sirve para directamente mostrar las habitaciones que estan ocupadas
+        habitaciones_con_reservas = set() #Se utilizan sets, para mostrarle directamente al cliente que habitaciones estan disponibles, asi ayuda a la seleccion de la habtiacion
+        if self.is_empty():
+            print('No hay habitaciones con reservas hechas')
+            return 
+        else:
+            current = self.head
+            while current:
+                habitaciones_con_reservas.add(current.habit.nro)
+                current = current.prox
+            print('Las habtiaciones con reservas son:')
+            for i in habitaciones_con_reservas:
+                print(i)
 
 class Recaudaciones:
     def __init__(self, nombre_archivo):
@@ -372,8 +525,8 @@ class Cliente(Usuario):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña)
         self.nro_cliente=Cliente.numero
         Cliente.numero+=1
-    def check_in(self):
-        FILE = str(self.dni) + '_historial.csv'
+    def check_in(self,hoy): #Mete al usuario al hotel, al hacerlo, se agrega la informacion al archvo del cliente
+        FILE = str(self.nombreusuario) + '_historial.csv'
         hora = dt.datetime.now().strftime("%H:%M")
         lista = []
         multa = 0
@@ -385,7 +538,6 @@ class Cliente(Usuario):
                 for fila in lector:
                     lista.append(fila)
         except FileNotFoundError:  # Si se encuentra un error se ejecuta esta parte
-            print("El archivo", FILE, "no existe. Se creará el archivo", FILE)
             with open(FILE,'a', encoding = 'utf-8') as archivo:
                 lista.append(['DNI','Habitacion','Fecha Check-in','Fecha Check-Out'])
                 escritor = csv.writer(archivo)
@@ -442,18 +594,19 @@ class Cliente(Usuario):
                 escritor = csv.writer(archivo)
                 for reserva in lista:
                     escritor.writerow(reserva)
-            file2 =   str(self.dni) + '_gastos.csv'
+            file2 =   str(self.nombreusuario) + '_gastos.csv'
             if multa > 0:
                 with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
                     writer =csv.writer(registro)
                     gasto = [multa, descripcionmulta]
                     writer.writerow(gasto)
+                    recaudacion_diaria(multa)
             
         else:
             print('Usted ya esta ocupando una habitación')  
 
-    def check_out(self,dias):
-        FILE = str(self.dni) + '_historial.csv'
+    def check_out(self,hoy):
+        FILE = str(self.nombreusuario) + '_historial.csv'
         lista = []
         multa = 0
         hora = dt.datetime.now().strftime("%H:%M")
@@ -497,8 +650,9 @@ class Cliente(Usuario):
                 multa = 500
                 descripcionmulta = 'Multa por check out fuera de horario establecido'
             montotot = dias*montodiario
+            recaudacion_diaria(montotot)
             descripcion = 'Estadia desde ' + str(fci) + ' hasta ' + str(fco)
-            file2 =   str(self.dni) + '_gastos.csv'
+            file2 =   str(self.nombreusuario) + '_gastos.csv'
             with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
                 writer =csv.writer(registro)
                 gasto = [montotot, descripcion]
@@ -506,6 +660,7 @@ class Cliente(Usuario):
                 if multa > 0:
                     gasto2 = [multa, descripcionmulta]
                     writer.writerow(gasto2) 
+                    recaudacion_diaria(multa)
         else: 
             if len(lista)==1: 
                 print('Aún no ha hecho reservas')
@@ -524,7 +679,7 @@ class Cliente(Usuario):
                 habo = [noc, co, po, cato, bo, bpo]
                 escritor.writerow(habo) 
     
-    def buffet():
+    def buffet(self):
         ''' Este metodo al ser ejecutado te presenta el menu con sus distintas opciones, permitiendote elegir una opcion a la vez.
         Una vez terminado tu pedido hace la suma del total y lo agrega a tus historial de gastos como cliente y a la recaudacion diaria'''
         buffet_menu = {
@@ -564,6 +719,13 @@ class Cliente(Usuario):
                 print(item)
             print(f"Costo total: ${costo_total:.2f}")
             recaudacion_diaria(costo_total)
+            file2 =   str(self.nombreusuario) + '_gastos.csv'
+            descripcion = 'Compra en el buffet'
+            with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
+                writer =csv.writer(registro)
+                gasto = [costo_total, descripcion]
+                writer.writerow(gasto)
+            
 
     def presentar_queja(self, queja):
         '''Cuando llamas este metodo del cliente, agrega tu queja a un archivo que acumula todas las quejas de los distintos clientes.
