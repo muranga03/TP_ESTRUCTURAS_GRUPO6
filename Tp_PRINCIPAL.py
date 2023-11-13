@@ -526,7 +526,7 @@ class Cliente(Usuario):
         self.nro_cliente=Cliente.numero
         Cliente.numero+=1
     def check_in(self,hoy): #Mete al usuario al hotel, al hacerlo, se agrega la informacion al archvo del cliente
-        FILE = str(self.dni) + '_historial.csv'
+        FILE = str(self.nombreusuario) + '_historial.csv'
         hora = dt.datetime.now().strftime("%H:%M")
         lista = []
         multa = 0
@@ -594,7 +594,7 @@ class Cliente(Usuario):
                 escritor = csv.writer(archivo)
                 for reserva in lista:
                     escritor.writerow(reserva)
-            file2 =   str(self.dni) + '_gastos.csv'
+            file2 =   str(self.nombreusuario) + '_gastos.csv'
             if multa > 0:
                 with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
                     writer =csv.writer(registro)
@@ -606,7 +606,7 @@ class Cliente(Usuario):
             print('Usted ya esta ocupando una habitación')  
 
     def check_out(self,hoy):
-        FILE = str(self.dni) + '_historial.csv'
+        FILE = str(self.nombreusuario) + '_historial.csv'
         lista = []
         multa = 0
         hora = dt.datetime.now().strftime("%H:%M")
@@ -652,7 +652,7 @@ class Cliente(Usuario):
             montotot = dias*montodiario
             recaudacion_diaria(montotot)
             descripcion = 'Estadia desde ' + str(fci) + ' hasta ' + str(fco)
-            file2 =   str(self.dni) + '_gastos.csv'
+            file2 =   str(self.nombreusuario) + '_gastos.csv'
             with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
                 writer =csv.writer(registro)
                 gasto = [montotot, descripcion]
@@ -719,7 +719,7 @@ class Cliente(Usuario):
                 print(item)
             print(f"Costo total: ${costo_total:.2f}")
             recaudacion_diaria(costo_total)
-            file2 =   str(self.dni) + '_gastos.csv'
+            file2 =   str(self.nombreusuario) + '_gastos.csv'
             descripcion = 'Compra en el buffet'
             with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
                 writer =csv.writer(registro)
