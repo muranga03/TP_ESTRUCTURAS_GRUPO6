@@ -21,63 +21,23 @@ def fecha_actual():
     return fecha
 hoy = fecha_actual()
 
-
-def ingreso_archivo (legajo, var):
-    fecha=fecha_actual()
-    if var :
-        # Utilizo esta parte de la funcion para ingresar los datos del ingreso del personal a un archivo
-        try:
-            fd= open("ingreso.txt", "a")
-            fd.write("El legajo, ")
-            fd.write(str(legajo)+ ", ingreso ")
-            fd.write(str(fecha))
-            fd.write('\n')
-            fd.close()
-        except FileNotFoundError:
-            fd= open("ingreso.txt", "x")
-            fd.write(str(legajo)+ " ")
-            fd.write(str(fecha))
-            fd.write('\n')
-            fd.close()
-    # Utilizo esta parte de la funcion para ingresar los datos del egreso del personal a un archivo
-    elif var == False:
-        try:
-            fd= open("egreso.txt", "a")
-            fd.write("El legajo, ")
-            fd.write(str(legajo)+ ", egreso ")
-            fd.write(str(fecha))
-            fd.write('\n')
-            fd.close()
-        except FileNotFoundError:
-            fd= open("egreso.txt", "x")
-            fd.write(str(legajo)+ " ")
-            fd.write(str(fecha))
-            fd.write('\n')
-            fd.close()
-        
-def egreso_archivo(legajo):
-# traigo el archivo de ingreso y verifico que la fecha de egreso sea posterior a la de ingreso de un legajo
-    fecha_egreso=fecha_actual()
-    lista=[]
-    FILE= "ingreso.txt"
-    try:
-        with open(FILE, 'r', encoding='utf-8') as archivo:
-            lector = csv.reader(archivo)
-            for fila in lector:
-                lista.append(fila)
-        
-        
-    except FileNotFoundError:  
-        print("El archivo", FILE, "no existe.")
-    
-    for i in range(len(lista)):
-        if int(lista[i][1])== int(legajo):
-            var=lista[i][-1].split(".")[0]
-    fechanueva=datetime.strptime(var, ' ingreso %Y-%m-%d %H:%M:%S')
-    if fecha_egreso>=fechanueva:
-        ingreso_archivo(legajo,fecha_egreso,False)
+def ingreso_y_egreso(legajo,hoy,renuncia,ingreso):
+    '''Esta funcion trabaja el archivo de ingreso y egreso de cada empleado.
+      Se ejecuta automaticamente cuando un personal ingresa a su cuenta, y nuevamente dando egreso cuando cierra el programa.
+       Tambien teine la opcion de renunciar '''
+    if renuncia:
+        datos= f"El legajo: {legajo}, renuncio la fecha: {hoy}\n"
     else:
-        print("La fecha de egreso es menor que la fecha de ingreso")   
+        if ingreso:
+            datos = f"El legajo: {legajo}, ingreso la fecha: {hoy}\n"
+        else:
+            datos = f"El legajo: {legajo}, engreso la fecha: {hoy}\n"
+    try:
+        with open("Ingreso_y_Egreso_Personal.txt", "a") as archivo:
+            archivo.write(datos)
+        print("Acabas de ingresar")
+    except Exception as e:
+        print(f"Error al guardar los datos: {e}")
 
 def historial_personal (legajo, nombre,apellido,tipo):
     # Utilizo esta funcion para crear el archivo con el historial de fecha de altas y bajas de cada empleado
@@ -589,13 +549,15 @@ class Personal(Usuario):
     
     def ingreso (self):
         legajo =self.nro_personal
-        fecha=dt.datetime.now()
-        ingreso_archivo(legajo,fecha,True)
+        ingreso_y_egreso(legajo,hoy,False,True)
 
     def egreso(self):
         legajo =self.nro_personal
-        fecha=dt.datetime.now()
-        egreso_archivo(legajo,fecha)
+        ingreso_y_egreso(legajo,hoy,False,False)
+
+    def renunciar(self):
+        legajo =self.nro_personal
+        ingreso_y_egreso(legajo,hoy,True,False)
         
     def alta(self):
         legajo=self.nro_personal
