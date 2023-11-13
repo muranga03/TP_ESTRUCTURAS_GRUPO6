@@ -525,7 +525,8 @@ class Cliente(Usuario):
                 escritor.writerow(habo) 
     
     def buffet():
-        
+        ''' Este metodo al ser ejecutado te presenta el menu con sus distintas opciones, permitiendote elegir una opcion a la vez.
+        Una vez terminado tu pedido hace la suma del total y lo agrega a tus historial de gastos como cliente y a la recaudacion diaria'''
         buffet_menu = {
             "1) Desayuno": 2200,
             "2) Almuerzo": 4000,
@@ -565,6 +566,8 @@ class Cliente(Usuario):
             recaudacion_diaria(costo_total)
 
     def presentar_queja(self, queja):
+        '''Cuando llamas este metodo del cliente, agrega tu queja a un archivo que acumula todas las quejas de los distintos clientes.
+          Luego el administrador tiene la posibilidad de resolver la queja, mediante un metodo propio de su clase'''
         try:
             with open("quejas.txt", "a") as file:
                 file.write(f"Cliente: {self.nro_cliente}, ")
@@ -615,7 +618,7 @@ class Personal(Usuario):
             if not tareas:
                 print(f"No hay tareas en el archivo '{nombre_archivo}'.")
                 return
-
+            
             tareas.pop(0)  # Elimina la primera tarea
 
             with open(nombre_archivo, "w") as file:

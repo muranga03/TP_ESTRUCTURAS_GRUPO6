@@ -43,9 +43,13 @@ while menu_general:
         '''La funcion esta detallada en Funciones.py'''
         menu_Limpieza_Mantenimiento(cuenta)
 
-    if tipo_menu == "Mantenimiento":
+    if tipo_menu == "Limpieza":
         '''La funcion esta detallada en Funciones.py'''
         menu_Limpieza_Mantenimiento(cuenta)
+    
+    if tipo_menu=="Cliente":
+        menu_cliente(cuenta)
+        
 
 clientesArchivo(listaClientes,"carga")
 personalArchivo(listaPersonal,"carga")
