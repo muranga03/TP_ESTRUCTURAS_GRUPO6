@@ -339,3 +339,37 @@ def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta
             
             elif opcion == 0:
                 break
+def menu_cliente(cuenta):
+    opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+    opcion = checkNro(opcion,0,4)
+    while opcion!=0:
+        if opcion==1:
+            try:
+                fd= open(f"{cuenta.nombreusuario}_historial.csv", "r")
+                print("Usted ya tiene una reserva")
+                opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+                opcion = checkNro(opcion,0,4)
+            except FileNotFoundError: 
+                cuenta.check_in()
+                opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+                opcion = checkNro(opcion,0,4)
+        else:
+            try:
+                fd= open(f"{cuenta.nombreusuario}_historial.csv", "r")
+                if opcion==2:
+                    cuenta.buffet()
+                    opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+                    opcion = checkNro(opcion,0,4)
+                elif opcion ==3:
+                    queja= input("Escriba la queja que quiere presentar")
+                    cuenta.presentar_queja(queja)
+                    opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+                    opcion = checkNro(opcion,0,4)
+                elif opcion ==4:
+                    cuenta.check_out()
+                    break
+
+            except FileNotFoundError:
+                print("Usted no hizo el check in. Ingrese nuevamente una opcion")
+                opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+                opcion = checkNro(opcion,0,4)
