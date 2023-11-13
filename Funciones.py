@@ -351,7 +351,7 @@ def menu_cliente(cuenta):
                 opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
                 opcion = checkNro(opcion,4,0)
             except FileNotFoundError: 
-                cuenta.check_in()
+                cuenta.check_in(hoy)
                 opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
                 opcion = checkNro(opcion,4,0)
         else:
@@ -367,7 +367,7 @@ def menu_cliente(cuenta):
                     opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
                     opcion = checkNro(opcion,4,0)
                 elif opcion ==4:
-                    cuenta.check_out()
+                    cuenta.check_out(hoy)
                     break
 
             except FileNotFoundError:
