@@ -13,16 +13,19 @@ def logIn(listaUsuarios):
         if contra == "admin":
             admin = Administrativo("","","","","","")
             return admin
+        else:
+            print("La contraseña es incorrecta\n")
+            return None
     for usr in listaUsuarios:
         if usr.nombreusuario == usuario:
             contra = input("Ingrese su contraseña\n ->")
             if contra == usr.contrasena:
                 return usr
             else:
-                print("La contraseña es incorrecta")
-                return False
-    print("El usuario ingresado no existe")
-    return False
+                print("La contraseña es incorrecta\n")
+                return None
+    print("El usuario ingresado no existe\n")
+    return None
     
 def signIn(listaClientes):
     '''Esta funcion recibe como parametro una lista con todos los usuarios creados y pide los datos necesarios para
@@ -36,7 +39,7 @@ def signIn(listaClientes):
     if listaClientes != []:    
         for usr in listaClientes:
             if usr.nombreusuario == usuario:
-                print("El usuario: " + usuario + " ya existe")
+                print("El usuario: " + usuario + " ya existe\n")
                 return     
     nombre = input("Ingrese su nombre\n ->")
     while nombre.isalpha()==False:
@@ -205,20 +208,23 @@ def ocupacion_segun_tipo(): #Obtiene y procesa los datos desde la lista de habit
 #         print('Solo se encontró un registro de la ocupación diaria')
 #         print('El porcentaje de ocupacion de la fecha: ', hoy, 'fue del :', ocupacion, '%')
 
-def checkNro(numero,maximo=False,minimo=0,):
+def checkNro(numero,maximo=False,minimo=0):
     '''Se fija si la variable numero pedida es un numero y si esta entre los valores minimo y maximo incluidos. En caso de no ingresar un minimo
     este es 0 por default'''
     intervalo = False
     while numero.isnumeric()==False or intervalo==False:
-        numero = input("Solo debe contener numeros\n ->")
         if maximo:
             try:
                 if minimo<=int(numero)<=maximo:
                     intervalo = True
-            except TypeError:
-                print("Debe estar entre {} y {}".format(minimo,maximo))
+                    break
+                else:
+                    numero = input("Debe estar entre {} y {}".format(minimo,maximo))
+            except ValueError:
+                numero = input("Solo debe contener numeros\n ->")          
         else:
             intervalo = True
+            numero = input("Solo debe contener numeros\n ->")  
     numero = int(numero)
     return numero
 
@@ -290,7 +296,7 @@ def menu_Limpieza_Mantenimiento(cuenta):
 def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy):
         '''Esta funcion sirve como menu para el personal de clase Administrativo. Permite realizar cada funcion que cumple un administrador mediante numeros que ingresa el usuario'''
         
-        opcion = input("1: Crear una cuenta de Personal \n2: Ver porcentaje de ocupacion actual de habitaciones \n3: Ver Porcentaje de ocupacion actual de habitaciones segun su categoria \n4: Ver recaudacion de hoy \n5: Crear tarea \n6: Eliminar primer tarea \n7: Eliminar ultima queja \n0: Cerrar Menu Administrativo \n ->")
+        opcion = input("\n1: Crear una cuenta de Personal \n2: Ver porcentaje de ocupacion actual de habitaciones \n3: Ver Porcentaje de ocupacion actual de habitaciones segun su categoria \n4: Ver recaudacion de hoy \n5: Crear tarea \n6: Eliminar primer tarea \n7: Eliminar ultima queja \n0: Cerrar cuenta \n ->")
         opcion = checkNro(opcion,7)
         while True:    
             if opcion == 1:

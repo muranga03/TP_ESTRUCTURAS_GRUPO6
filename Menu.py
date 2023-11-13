@@ -10,6 +10,7 @@ clientesArchivo(listaClientes,"descarga")
 personalArchivo(listaPersonal,"descarga")
 ocupActual = ocupacion_actual()
 ocupBas , ocupMed , ocupPrem = ocupacion_segun_tipo()
+tipo_menu = None
 
 menu_general = True
 while menu_general:
@@ -29,18 +30,22 @@ while menu_general:
         elif type(cuenta) == Limpieza:
             tipo_menu = "Limpieza"
         elif type(cuenta) == Mantenimiento:
-            tipo_menu = "Mantenimiento" 
-        if tipo_menu == "Administrador":
-            '''La funcion esta detallada en Funciones.py'''
-            menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy)
+            tipo_menu = "Mantenimiento"
+        elif cuenta == None:
+            tipo_menu = None
+            
+   
+    if tipo_menu == "Administrador":
+        '''La funcion esta detallada en Funciones.py'''
+        menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy)
 
-        if tipo_menu == "Mantenimiento":
-            '''La funcion esta detallada en Funciones.py'''
-            menu_Limpieza_Mantenimiento(cuenta)
+    if tipo_menu == "Mantenimiento":
+        '''La funcion esta detallada en Funciones.py'''
+        menu_Limpieza_Mantenimiento(cuenta)
 
-        if tipo_menu == "Mantenimiento":
-            '''La funcion esta detallada en Funciones.py'''
-            menu_Limpieza_Mantenimiento(cuenta)
+    if tipo_menu == "Mantenimiento":
+        '''La funcion esta detallada en Funciones.py'''
+        menu_Limpieza_Mantenimiento(cuenta)
 
 clientesArchivo(listaClientes,"carga")
 personalArchivo(listaPersonal,"carga")
