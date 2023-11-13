@@ -27,7 +27,7 @@ def logIn(listaUsuarios):
     print("El usuario ingresado no existe\n")
     return None
     
-def signIn(listaClientes):
+def signIn(listaClientes,listaUsuarios):
     '''Esta funcion recibe como parametro una lista con todos los usuarios creados y pide los datos necesarios para
     generar un nuevo usuario. En caso de que ya exista el usuario imprime que ese nombre de usuario ya esta siendo usado y pide uno nuevo.
     Esta funcion solo puede usarse para crear un cliente. El personal lo genera el Administrador'''
@@ -37,7 +37,7 @@ def signIn(listaClientes):
         if usuario == "quit":
             return
     if listaClientes != []:    
-        for usr in listaClientes:
+        for usr in listaUsuarios:
             if usr.nombreusuario == usuario:
                 print("El usuario: " + usuario + " ya existe\n")
                 return     
@@ -48,7 +48,7 @@ def signIn(listaClientes):
     apellido = input("Ingrese su apellido\n ->")
     while apellido.isalpha()==False:
         apellido = input("Ingrese su apellido solo con letras\n ->")
-    apellido = nombre.upper()
+    apellido = apellido.upper()
     dni = input("Ingrese su DNI\n ->")
     while dni.isnumeric()==False or len(dni)!=8:
         dni = input("Ingrese su dni solo con numeros y con 8 digitos\n ->")
@@ -252,7 +252,7 @@ def crearPersonal(tipo,listaPersonal):
         apellido = input("Ingrese el apellido\n ->")
         while apellido.isalpha()==False:
             apellido = input("Ingrese el apellido solo con letras\n ->")
-        apellido = nombre.upper()
+        apellido = apellido.upper()
         dni = input("Ingrese el DNI\n ->")
         while dni.isnumeric()==False or len(dni)!=8:
             dni = input("Ingrese su dni solo con numeros y con 8 digitos\n ->")
@@ -342,30 +342,30 @@ def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta
             
 def menu_cliente(cuenta):
     opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-    opcion = checkNro(opcion,0,4)
+    opcion = checkNro(opcion,4,0)
     while opcion!=0:
         if opcion==1:
             try:
                 fd= open(f"{cuenta.nombreusuario}_historial.csv", "r")
                 print("Usted ya tiene una reserva")
                 opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-                opcion = checkNro(opcion,0,4)
+                opcion = checkNro(opcion,4,0)
             except FileNotFoundError: 
                 cuenta.check_in()
                 opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-                opcion = checkNro(opcion,0,4)
+                opcion = checkNro(opcion,4,0)
         else:
             try:
                 fd= open(f"{cuenta.nombreusuario}_historial.csv", "r")
                 if opcion==2:
                     cuenta.buffet()
                     opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-                    opcion = checkNro(opcion,0,4)
+                    opcion = checkNro(opcion,4,0)
                 elif opcion ==3:
                     queja= input("Escriba la queja que quiere presentar")
                     cuenta.presentar_queja(queja)
                     opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-                    opcion = checkNro(opcion,0,4)
+                    opcion = checkNro(opcion,4,0)
                 elif opcion ==4:
                     cuenta.check_out()
                     break
@@ -373,4 +373,4 @@ def menu_cliente(cuenta):
             except FileNotFoundError:
                 print("Usted no hizo el check in. Ingrese nuevamente una opcion")
                 opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-                opcion = checkNro(opcion,0,4)
+                opcion = checkNro(opcion,4,0)

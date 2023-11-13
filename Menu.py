@@ -19,7 +19,7 @@ while menu_general:
     listaUsuarios = listaClientes + listaPersonal
 
     if menu_general == 1: #Crear cuenta
-        signIn(listaClientes)
+        signIn(listaClientes,listaUsuarios)
 
     elif menu_general == 2: #Ingresar a cuenta
         cuenta = logIn(listaUsuarios)
