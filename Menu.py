@@ -36,14 +36,17 @@ while menu_general:
             
    
     if tipo_menu == "Administrador":
+        cuenta.ingreso()
         '''La funcion esta detallada en Funciones.py'''
         menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy)
 
     if tipo_menu == "Mantenimiento":
+        cuenta.ingreso()
         '''La funcion esta detallada en Funciones.py'''
         menu_Limpieza_Mantenimiento(cuenta)
 
     if tipo_menu == "Limpieza":
+        cuenta.ingreso()
         '''La funcion esta detallada en Funciones.py'''
         menu_Limpieza_Mantenimiento(cuenta)
     

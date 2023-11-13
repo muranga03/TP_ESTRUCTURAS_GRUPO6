@@ -278,16 +278,17 @@ def menu_Limpieza_Mantenimiento(cuenta):
         print("\nMenú:")
         print("1. Realizar Primer Tarea")
         print("2. Renunciar")
-        print("3. Salir del programa")
+        print("0. Salir del programa")
         opcion = input("Elige una opción: ")
 
         if opcion == "1":
             cuenta.realizar_tarea()
         elif opcion == "2":
-            cuenta.baja()
+            cuenta.renunciar()
             print("Usted ha renunciado. Muchas gracias por su trabajo realizado durante todo este tiempo")
             break
-        elif opcion == "3":
+        elif opcion == "0":
+            cuenta.egreso()
             print("Saliendo del programa.")
             break
         else:
@@ -338,8 +339,9 @@ def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta
                 cuenta.eliminar_ultima_queja()
             
             elif opcion == 0:
+                cuenta.egreso()
                 break
-            
+
 def menu_cliente(cuenta):
     opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
     opcion = checkNro(opcion,4,0)
