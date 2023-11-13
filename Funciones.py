@@ -27,7 +27,7 @@ def logIn(listaUsuarios):
     print("El usuario ingresado no existe\n")
     return None
     
-def signIn(listaClientes):
+def signIn(listaClientes,listaUsuarios):
     '''Esta funcion recibe como parametro una lista con todos los usuarios creados y pide los datos necesarios para
     generar un nuevo usuario. En caso de que ya exista el usuario imprime que ese nombre de usuario ya esta siendo usado y pide uno nuevo.
     Esta funcion solo puede usarse para crear un cliente. El personal lo genera el Administrador'''
@@ -37,7 +37,7 @@ def signIn(listaClientes):
         if usuario == "quit":
             return
     if listaClientes != []:    
-        for usr in listaClientes:
+        for usr in listaUsuarios:
             if usr.nombreusuario == usuario:
                 print("El usuario: " + usuario + " ya existe\n")
                 return     
@@ -48,7 +48,7 @@ def signIn(listaClientes):
     apellido = input("Ingrese su apellido\n ->")
     while apellido.isalpha()==False:
         apellido = input("Ingrese su apellido solo con letras\n ->")
-    apellido = nombre.upper()
+    apellido = apellido.upper()
     dni = input("Ingrese su DNI\n ->")
     while dni.isnumeric()==False or len(dni)!=8:
         dni = input("Ingrese su dni solo con numeros y con 8 digitos\n ->")
@@ -252,7 +252,7 @@ def crearPersonal(tipo,listaPersonal):
         apellido = input("Ingrese el apellido\n ->")
         while apellido.isalpha()==False:
             apellido = input("Ingrese el apellido solo con letras\n ->")
-        apellido = nombre.upper()
+        apellido = apellido.upper()
         dni = input("Ingrese el DNI\n ->")
         while dni.isnumeric()==False or len(dni)!=8:
             dni = input("Ingrese su dni solo con numeros y con 8 digitos\n ->")
