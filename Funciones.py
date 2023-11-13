@@ -263,3 +263,26 @@ if __name__ == "__main__":
     # lista = [persona,persona2]
     lista = []
     lista = clientesArchivo(lista,"descarga")
+
+def menu_Limpieza_Mantenimiento(cuenta):
+    '''Esta funcion sirve para el menu de limpieza y mantenimiento. Cuando el usuario ingresa le aparecen la siguientes 3 opciones.
+      Si elige la opcion 1 entonces se ejecuta otra funcion llamada realizar_tarea, metodo de la clase personal. 
+      En las otras dos opciones sale del programa mediante un break'''
+    while True:
+        print("\nMenú:")
+        print("1. Realizar Tarea")
+        print("2. Renunciar")
+        print("3. Salir del programa")
+        opcion = input("Elige una opción: ")
+
+        if opcion == "1":
+            cuenta.realizar_tarea()
+        elif opcion == "2":
+            cuenta.baja()
+            print("Usted ha renunciado. Muchas gracias por su trabaja realizado durante todo este tiempo")
+            break
+        elif opcion == "3":
+            print("Saliendo del programa.")
+            break
+        else:
+            print("Opción no válida. Por favor, selecciona una opción válida.")

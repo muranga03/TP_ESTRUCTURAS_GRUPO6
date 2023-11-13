@@ -606,7 +606,7 @@ class Personal(Usuario):
         legajo=self.nro_personal
         dar_baja_personal(legajo)
     
-    def borrar_primera_tarea(self): # En este metodo utilizamos una cola ya que la primer tarea en ser ingresada es la primera en ser realizada
+    def realizar_tarea(self): # En este metodo utilizamos una cola ya que la primer tarea en ser ingresada es la primera en ser realizada
         nombre_archivo = f"tareas_{self.tipo}.txt"  
         try:
             with open(nombre_archivo, "r") as file:
@@ -624,7 +624,7 @@ class Personal(Usuario):
             print("La primera tarea ha sido eliminada con éxito.")
         except IOError as e:
             print(f"Error al eliminar la tarea: {e}")
-
+    
 
 class Administrativo(Personal):
     tipo="Administrador"

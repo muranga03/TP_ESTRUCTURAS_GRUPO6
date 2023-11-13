@@ -77,7 +77,13 @@ while opcion:
             elif opcion == 7:
                 cuenta.eliminar_ultima_queja()
 
+    if menu == "Mantenimiento":
+        '''La funcion esta detallada en Funciones.py'''
+        menu_Limpieza_Mantenimiento(cuenta)
 
+    if menu == "Mantenimiento":
+        '''La funcion esta detallada en Funciones.py'''
+        menu_Limpieza_Mantenimiento(cuenta)
 
 
 
