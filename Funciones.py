@@ -260,17 +260,26 @@ def crearPersonal(tipo,listaPersonal):
         while len(contra)<5 or ' ' in contra or ',' in contra:
             contra = input("Ingrese la contraseña denuevo, debe contener al menos 5 caracteres y no puede contener espacios ni comas\n ->")
         sueldo = input("Ingrese el sueldo\n ->")
-        while sueldo.isnumeric()==False or sueldo <= 0:
-            sueldo = input("Ingrese el sueldo solo con numeros, debe ser positivo\n ->")
+        negativo = True
+        while sueldo.isnumeric()==False or negativo:
+            try:
+                if int(sueldo)>=0:
+                    break
+                else:
+                    sueldo = input("Ingrese el sueldo solo con numeros, debe ser positivo\n ->")
+            except ValueError:
+                sueldo = input("Ingrese el sueldo solo con numeros, debe ser positivo\n ->")
+        print("se creo bien")
         if tipo == 1:
             nuevoPersonal = Administrativo(nombre,apellido,usuario,dni,contra,sueldo)
-        if tipo == 2:
+        elif tipo == 2:
             nuevoPersonal = Limpieza(nombre,apellido,usuario,dni,contra,sueldo)
-        if tipo == 3:
+        elif tipo == 3:
             nuevoPersonal = Mantenimiento(nombre,apellido,usuario,dni,contra,sueldo)
         listaPersonal.append(nuevoPersonal)
 
-def menu_Limpieza_Mantenimiento(cuenta):
+
+def menu_Limpieza_Mantenimiento(cuenta,listaPersonal,listaClientes,listaUsuarios):
     '''Esta funcion sirve para el menu de limpieza y mantenimiento. Cuando el usuario ingresa le aparecen la siguientes 3 opciones.
       Si elige la opcion 1 entonces se ejecuta otra funcion llamada realizar_tarea, metodo de la clase personal. 
       En las otras dos opciones sale del programa mediante un break'''
@@ -286,7 +295,13 @@ def menu_Limpieza_Mantenimiento(cuenta):
         elif opcion == "2":
             cuenta.renunciar()
             print("Usted ha renunciado. Muchas gracias por su trabajo realizado durante todo este tiempo")
-            break
+            cont = 0
+            for usr in listaPersonal:
+                if usr == cuenta:
+                    listaPersonal.pop(cont)
+                cont+=1
+            listaUsuarios = listaPersonal+listaClientes
+            return listaUsuarios
         elif opcion == "0":
             cuenta.egreso()
             print("Saliendo del programa.")
@@ -296,10 +311,10 @@ def menu_Limpieza_Mantenimiento(cuenta):
 
 def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy):
         '''Esta funcion sirve como menu para el personal de clase Administrativo. Permite realizar cada funcion que cumple un administrador mediante numeros que ingresa el usuario'''
-        
-        opcion = input("\n1: Crear una cuenta de Personal \n2: Ver porcentaje de ocupacion actual de habitaciones \n3: Ver Porcentaje de ocupacion actual de habitaciones segun su categoria \n4: Ver recaudacion de hoy \n5: Crear tarea \n6: Eliminar primer tarea \n7: Eliminar ultima queja \n0: Cerrar cuenta \n ->")
-        opcion = checkNro(opcion,7)
+
         while True:    
+            opcion = input("\n1: Crear una cuenta de Personal \n2: Ver porcentaje de ocupacion actual de habitaciones \n3: Ver Porcentaje de ocupacion actual de habitaciones segun su categoria \n4: Ver recaudacion de hoy \n5: Crear tarea \n6: Eliminar primer tarea \n7: Eliminar ultima queja \n0: Cerrar cuenta \n ->")
+            opcion = checkNro(opcion,7)
             if opcion == 1:
                 tipo = input("Seleccione el tipo de cuenta que desea crear:\n1: Cuenta Administrador \n2: Cuenta Limpieza \n3: Cuenta Mantenimiento \n0: Si desea regresar al menu \n ->")
                 tipo = checkNro(tipo,3)
@@ -312,7 +327,7 @@ def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta
                 print("El porcentaje de ocupacion de habitaciones de tipo basico actual es: " + ocupBas +'%' + "\nEl porcentaje de ocupacion de habitaciones de tipo medio actual es: " + ocupMed +'%' + "\nEl porcentaje de ocupacion de habitaciones de tipo medio actual es: " + ocupPrem +'%')
                 
             elif opcion == 4:
-                cuenta.ver_recaudacion_diaria(hoy)
+                cuenta.ver_recaudacion_diaria(hoy,True)
                 
             elif opcion == 5:
                 tipo == input("Ingrese a que personal quiere agregarle la tarea: \n1: Administrador \n2: Limpieza \n3: Mantenimiento")
@@ -341,6 +356,7 @@ def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta
             elif opcion == 0:
                 cuenta.egreso()
                 break
+            
 
 def menu_cliente(cuenta):
     opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
@@ -370,7 +386,8 @@ def menu_cliente(cuenta):
                     opcion = checkNro(opcion,4,0)
                 elif opcion ==4:
                     cuenta.check_out(hoy)
-                    break
+                    cuenta = None
+                    return
 
             except FileNotFoundError:
                 print("Usted no hizo el check in. Ingrese nuevamente una opcion")

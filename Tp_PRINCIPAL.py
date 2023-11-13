@@ -1,6 +1,25 @@
 import datetime as dt
 import csv
-from datetime import datetime
+
+def checkNro(numero,maximo=False,minimo=0):
+    '''Se fija si la variable numero pedida es un numero y si esta entre los valores minimo y maximo incluidos. En caso de no ingresar un minimo
+    este es 0 por default'''
+    intervalo = False
+    while numero.isnumeric()==False or intervalo==False:
+        if maximo:
+            try:
+                if minimo<=int(numero)<=maximo:
+                    intervalo = True
+                    break
+                else:
+                    numero = input("Debe estar entre {} y {}\n ->".format(minimo,maximo))
+            except ValueError:
+                numero = input("Solo debe contener numeros\n ->")          
+        else:
+            intervalo = True
+            numero = input("Solo debe contener numeros\n ->")  
+    numero = int(numero)
+    return numero
 
 def fecha_actual():
     pf = 'fecha_actual.txt'
@@ -655,20 +674,11 @@ class Cliente(Usuario):
 
         while True:
             print_menu(buffet_menu)
-            print("Ingrese el numerode las opciones que te gustaria agregar a tu pedido, o '0' para terminar la orden.")
-            opcion = input("Ingrese el numero de la opcion: ")
-
-            if opcion == '0':
+            opcion = input("Ingrese el numero de las opciones que te gustaria agregar a tu pedido, o '0' para terminar la orden.\n ->")
+            opcion = checkNro(opcion,len(buffet_menu))
+            orden.append(list(buffet_menu.keys())[opcion - 1])
+            if opcion == 0:
                 break
-
-            try:
-                opcion = int(opcion)
-                if 1 <= opcion <= len(buffet_menu):
-                    orden.append(list(buffet_menu.keys())[opcion - 1])
-                else:
-                    print("Opcion invalida. Por favor ingrese el numero de vuelta")
-            except ValueError:
-                print("Input invalido. Ingrese el numero")
 
         if not orden:
             print("No hay items en tu orden.")

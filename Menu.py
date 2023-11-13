@@ -43,15 +43,18 @@ while menu_general:
     if tipo_menu == "Mantenimiento":
         cuenta.ingreso()
         '''La funcion esta detallada en Funciones.py'''
-        menu_Limpieza_Mantenimiento(cuenta)
+        menu_Limpieza_Mantenimiento(cuenta,listaPersonal,listaClientes,listaUsuarios)
 
     if tipo_menu == "Limpieza":
         cuenta.ingreso()
         '''La funcion esta detallada en Funciones.py'''
-        menu_Limpieza_Mantenimiento(cuenta)
+        menu_Limpieza_Mantenimiento(cuenta,listaPersonal,listaClientes,listaUsuarios)
     
     if tipo_menu=="Cliente":
         menu_cliente(cuenta)
+    
+    tipo_menu = None
+    cuenta = None
         
 
 clientesArchivo(listaClientes,"carga")
