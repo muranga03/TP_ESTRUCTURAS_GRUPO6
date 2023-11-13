@@ -47,8 +47,7 @@ def signIn(listaClientes):
         apellido = input("Ingrese su apellido solo con letras\n ->")
     apellido = nombre.upper()
     dni = input("Ingrese su DNI\n ->")
-    while dni.isnumeric()==False or len(dni)!=8:
-        dni = input("Ingrese su DNI solo con numeros, debe tener 8 caracteres\n ->")
+    dni = checkNro(dni,8,8)
     contra = input("Ingrese su contraseña, debe tener mas de 5 caracteres sin espacios ni comas\n ->")
     while len(contra)<5 or ' ' in contra or ',' in contra:
         contra = input("Ingrese su contraseña denuevo, debe contener al menos 5 caracteres y no puede contener espacios ni comas\n ->")
@@ -206,18 +205,18 @@ def ocupacion_segun_tipo(): #Obtiene y procesa los datos desde la lista de habit
 #         print('Solo se encontró un registro de la ocupación diaria')
 #         print('El porcentaje de ocupacion de la fecha: ', hoy, 'fue del :', ocupacion, '%')
 
-def checkNro(numero,maximo=None,minimo=0,):
+def checkNro(numero,maximo=False,minimo=0,):
     '''Se fija si la variable numero pedida es un numero y si esta entre los valores minimo y maximo incluidos. En caso de no ingresar un minimo
     este es 0 por default'''
     intervalo = False
-    while numero.isnumeric()==False and intervalo==False:
+    while numero.isnumeric()==False or intervalo==False:
         numero = input("Solo debe contener numeros\n ->")
-        if maximo != None:
+        if maximo:
             try:
                 if minimo<=int(numero)<=maximo:
                     intervalo = True
             except TypeError:
-                intervalo = False
+                print("Debe estar entre {} y {}".format(minimo,maximo))
         else:
             intervalo = True
     numero = int(numero)
@@ -250,8 +249,7 @@ def crearPersonal(tipo,listaPersonal):
             apellido = input("Ingrese el apellido solo con letras\n ->")
         apellido = nombre.upper()
         dni = input("Ingrese el DNI\n ->")
-        while dni.isnumeric()==False or len(dni)!=8:
-            dni = input("Ingrese el DNI solo con numeros, debe tener 8 caracteres\n ->")
+        dni = checkNro(dni,8,8)
         contra = input("Ingrese la contraseña, debe tener mas de 5 caracteres sin espacios ni comas\n ->")
         while len(contra)<5 or ' ' in contra or ',' in contra:
             contra = input("Ingrese la contraseña denuevo, debe contener al menos 5 caracteres y no puede contener espacios ni comas\n ->")
@@ -288,3 +286,50 @@ def menu_Limpieza_Mantenimiento(cuenta):
             break
         else:
             print("Opción no válida. Por favor, selecciona una opción válida.")
+
+def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy):
+        '''Esta funcion sirve como menu para el personal de clase Administrativo. Permite realizar cada funcion que cumple un administrador mediante numeros que ingresa el usuario'''
+        
+        opcion = input("1: Crear una cuenta de Personal \n2: Ver porcentaje de ocupacion actual de habitaciones \n3: Ver Porcentaje de ocupacion actual de habitaciones segun su categoria \n4: Ver recaudacion de hoy \n5: Crear tarea \n6: Eliminar primer tarea \n7: Eliminar ultima queja \n0: Cerrar Menu Administrativo \n ->")
+        opcion = checkNro(opcion,7)
+        while True:    
+            if opcion == 1:
+                tipo = input("Seleccione el tipo de cuenta que desea crear:\n1: Cuenta Administrador \n2: Cuenta Limpieza \n3: Cuenta Mantenimiento \n0: Si desea regresar al menu \n ->")
+                tipo = checkNro(tipo,3)
+                crearPersonal(tipo,listaPersonal)
+
+            elif opcion == 2:
+                print("El porcentaje de ocupacion de habitaciones actual es: " + ocupActual +'%')
+
+            elif opcion == 3:
+                print("El porcentaje de ocupacion de habitaciones de tipo basico actual es: " + ocupBas +'%' + "\nEl porcentaje de ocupacion de habitaciones de tipo medio actual es: " + ocupMed +'%' + "\nEl porcentaje de ocupacion de habitaciones de tipo medio actual es: " + ocupPrem +'%')
+                
+            elif opcion == 4:
+                cuenta.ver_recaudacion_diaria(hoy)
+                
+            elif opcion == 5:
+                tipo == input("Ingrese a que personal quiere agregarle la tarea: \n1: Administrador \n2: Limpieza \n3: Mantenimiento")
+                tipo = checkNro(tipo,3,1)
+                print("Los trabajos disponibles para el tipo de personal elegido son los siguientes: ")
+                if tipo == 1:
+                    clase =  Administrativo
+                if tipo == 2:
+                    clase = Limpieza
+                if tipo == 3:
+                    clase = Mantenimiento
+                cont=0
+                for i in clase.trabajos:
+                    print(cont + ": " + i)
+                    cont=+1
+                tarea = input("Ingrese la opcion deseada")
+                tarea = checkNro(tarea,len(clase.trabajos))
+                cuenta.asignar_tarea(clase.trabajos[tarea],tipo)
+
+            elif opcion == 6:
+                cuenta.realizar_tarea()
+
+            elif opcion == 7:
+                cuenta.eliminar_ultima_queja()
+            
+            elif opcion == 0:
+                break
