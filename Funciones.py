@@ -516,13 +516,8 @@ def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta
             elif opcion == 0:
                 cuenta.egreso()
                 break
-<<<<<<< Updated upstream
-
-def menu_cliente(cuenta):
-=======
             
 def menu_cliente(cuenta,lista_reservas,hoy):
->>>>>>> Stashed changes
     opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
     opcion = checkNro(opcion,4,0)
     while opcion!=0:

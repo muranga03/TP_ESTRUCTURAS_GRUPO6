@@ -134,12 +134,8 @@ class Reserva:
 class Lista_reservas:
     def __init__(self):
         self.head = None
-
     def is_empty(self):
         return self.head is None
-    
-
-        
     def subir_lista_reservas(self): #Sube los cambios a un archivo, para guardar la información
         FILE = 'lista_reservas.csv'
         with open(FILE, 'a', newline = '', encoding = 'utf-8') as archivo:
@@ -240,8 +236,7 @@ class Lista_reservas:
             if current.entrada == hoy:
                 nrohabit = current.habit.nro
                 entrada = current.entrada
-                salida = current.salida
-                current.usuario.check_in(hoy)
+                current.usuario.check_in(nrohabit,entrada)
                 current = current.prox
             else:
                 current = current.prox
@@ -259,13 +254,14 @@ class Lista_reservas:
         current = self.head
         while current.prox:
             if current.prox.salida == hoy:
-                current.prox.usuario.check_out()
+                nrohabit = current.habit.nro
+                entrada = current.entrada
+                salida = current.salida
+                current.prox.usuario.check_out(nrohabit,entrada,salida)
                 current.prox = current.prox.prox
                 return
             else: 
                 current = current.prox
-                
-        self.subir_lista_reservas()
     def habitaciones_con_reservas(self): #Funcion que sirve para directamente mostrar las habitaciones que estan ocupadas
         habitaciones_con_reservas = set() #Se utilizan sets, para mostrarle directamente al cliente que habitaciones estan disponibles, asi ayuda a la seleccion de la habtiacion
         if self.is_empty():
