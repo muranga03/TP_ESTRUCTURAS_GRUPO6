@@ -206,7 +206,7 @@ def ocupacion_segun_tipo(): #Obtiene y procesa los datos desde la lista de habit
 #         print('Solo se encontró un registro de la ocupación diaria')
 #         print('El porcentaje de ocupacion de la fecha: ', hoy, 'fue del :', ocupacion, '%')
 
-def checkNro(numero,minimo=0,maximo=None):
+def checkNro(numero,maximo=None,minimo=0,):
     '''Se fija si la variable numero pedida es un numero y si esta entre los valores minimo y maximo incluidos. En caso de no ingresar un minimo
     este es 0 por default'''
     intervalo = False
