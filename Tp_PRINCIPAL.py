@@ -238,7 +238,10 @@ class Lista_reservas:
             return encontrado
         while current:
             if current.entrada == hoy:
-                current.usuario.check_in()
+                nrohabit = current.habit.nro
+                entrada = current.entrada
+                salida = current.salida
+                current.usuario.check_in(hoy)
                 current = current.prox
             else:
                 current = current.prox
@@ -486,123 +489,90 @@ class Cliente(Usuario):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña)
         self.nro_cliente=Cliente.numero
         Cliente.numero+=1
-    def check_in(self,hoy): #Mete al usuario al hotel, al hacerlo, se agrega la informacion al archvo del cliente
-        FILE = str(self.nombreusuario) + '_historial.csv'
+    def check_in(self,nrohabit,entrada): #Mete al usuario al hotel, al hacerlo, se agrega la informacion al archvo del cliente
+        FILE = str(self.nombreusuario) + '_historial.txt'
         hora = dt.datetime.now().strftime("%H:%M")
         lista = []
         multa = 0
         listahab = cargar_habitaciones()
         listahabocupadas = habitaciones_ocupadas()
+        escribo = str(self.dni)+ ', ' + str(nrohabit) + ', ' + str(entrada)
+        
+        
         try: # Probamos el siguiente código
             with open(FILE, 'r', encoding='utf-8') as archivo:
-                lector = csv.reader(archivo)
-                for fila in lector:
-                    lista.append(fila)
+                archivo.readlines()
+            
+            with open(FILE, 'r', encoding='utf-8') as archivo:
+                archivo.write(escribo)
         except FileNotFoundError:  # Si se encuentra un error se ejecuta esta parte
             with open(FILE,'a', encoding = 'utf-8') as archivo:
-                lista.append(['DNI','Habitacion','Fecha Check-in','Fecha Check-Out'])
-                escritor = csv.writer(archivo)
-                for fila in lista:
-                    escritor.writerow(fila)
-        activo = False #Variable que me dice si ya esta en el hotel (Solo se puede hacer una reserva a la vez)
-        if len(lista)>1 and lista[len(lista)-1][3] == '':
-            activo = True
-        if activo == False:
-            existe = False
-            ocupado = False
-            while existe == False or ocupado == True:
-                nrohab = (input('Ingrese la habitacion deseada'))
-                try:
-                    existe = False
-                    ocupado = False
-                    nrohab = int(nrohab)
-                    for i in listahab:
-                        if i.nro == nrohab:
-                            existe = True
-                    for i in listahabocupadas:
-                        if i.nro ==nrohab:
-                            ocupado = True
-                    if ocupado == True:
-                        print('Esta habitación esta ocupada')
-                    if existe == False:
-                        print('Esta habitacion no existe')
-                except ValueError:
-                    print('Escriba el numero de habitacion Correctamente')
-
-            fp = 'habitaciones_ocupadas.csv'
-            for i in listahab:
-                if i.nro == nrohab:
-                    listahabocupadas.append(i)
-                    noc = i.nro
-                    co = i.capacidad
-                    po = i.precio
-                    cato = i.categoria
-                    bo = i.balcon
-                    bpo = i.banopriv
-                    habo = [noc, co, po, cato, bo, bpo]
-                    print('Usted ha ingresado a la habitación', noc)
-            with open (fp, 'a', newline = '', encoding = 'utf-8')as arc:
-                escritor = csv.writer(arc)
-                escritor.writerow(habo)
-            if hora < '09:00' or hora > '18:00':
-                multa = 500
-                descripcionmulta = 'Multa por check in fuera de horario establecido'
-            fci = hoy
-            fco = None
-            lista_reserva = [self.dni, nrohab, fci, fco]
-            lista.append(lista_reserva)
-            with open(FILE, 'w', newline='', encoding='utf-8') as archivo:
-                escritor = csv.writer(archivo)
-                for reserva in lista:
-                    escritor.writerow(reserva)
-            file2 =   str(self.nombreusuario) + '_gastos.csv'
-            if multa > 0:
-                with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
-                    writer =csv.writer(registro)
-                    gasto = [multa, descripcionmulta]
-                    writer.writerow(gasto)
-                    recaudacion_diaria(multa)
+                archivo.write('DNI, Habitacion, Fecha Check-in, Fecha Check-Out')
+                
+        fp = 'habitaciones_ocupadas.csv'
+        for i in listahab:
+            if i.nro == nrohabit:
+                listahabocupadas.append(i)
+                noc = i.nro
+                co = i.capacidad
+                po = i.precio
+                cato = i.categoria
+                bo = i.balcon
+                bpo = i.banopriv
+                habo = [noc, co, po, cato, bo, bpo]
+                print('Usted ha ingresado a la habitación', noc)
+        with open (fp, 'a', newline = '', encoding = 'utf-8')as arc:
+            escritor = csv.writer(arc)
+            escritor.writerow(habo)
+        if hora < '09:00' or hora > '18:00':
+            multa = 500
+            descripcionmulta = 'Multa por check in fuera de horario establecido'
+        fci = entrada
+        fco = None
+        lista_registro =[self.dni, nrohabit, fci, fco]
+        lista.append(lista_registro)
+        with open(FILE, 'w', newline='', encoding='utf-8') as archivo:
+            escritor = csv.writer(archivo)
+            for reserva in lista:
+                escritor.writerow(reserva)
+        file2 =   str(self.nombreusuario) + '_gastos.csv'
+        if multa > 0:
+            with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
+                writer =csv.writer(registro)
+                gasto = [multa, descripcionmulta]
+                writer.writerow(gasto)
+                recaudacion_diaria(multa)
             
-        else:
-            print('Usted ya esta ocupando una habitación')  
 
-    def check_out(self,hoy):
-        FILE = str(self.nombreusuario) + '_historial.csv'
+    def check_out(self,nrohabit,entrada,salida):
+        FILE = str(self.nombreusuario) + '_historial.txt'
         lista = []
         multa = 0
         hora = dt.datetime.now().strftime("%H:%M")
         listahabocupadas = habitaciones_ocupadas()
+        listahab = cargar_habitaciones()
+        rescribo = str(self.dni)+ ', ' + str(nrohabit) + ', ' + str(entrada) + ', ' + str(salida)
         try: # Probamos el siguiente código
             with open(FILE, 'r', encoding='utf-8') as archivo:
-                lector = csv.reader(archivo)
-                for fila in lector:
-                    lista.append(fila)
-        except FileNotFoundError:  # Si se encuentra un error se ejecuta esta parte
-            print("El archivo", FILE, "no existe. Se creará el archivo", FILE)
-            with open(FILE,'a', encoding = 'utf-8') as archivo:
-                lista.append(['DNI','Habitacion','Fecha Check-in','Fecha Check-Out'])
-                escritor = csv.writer(archivo)
-                for fila in lista:
-                    escritor.writerow(fila)
-        if len(lista)>1 and lista[len(lista)-1][3] == '':
-            fco = hoy
-            fcistr = lista[len(lista)-1][2]
-            fci =dt.datetime.strptime(fcistr, '%Y-%m-%d').date()
-            duracion = str(fco -fci)
-            listo = False
+                lineas= archivo.readlines()
+            if lineas:
+                lineas[-1] = rescribo
+            with open(FILE, 'w', encoding='utf-8') as archivo:
+                archivo.writelines(lineas)
+                
+            duracion = str(salida - entrada)
             digito = ''
             for i in duracion:
                 if i.isdigit() and listo == False:
                     digito += i
                 if i == ' ':
                     listo = True
-            dias = int(digito)    
-            nrohab = int(lista[len(lista)-1][1])
-            for i in listahabocupadas:
-                if i.nro == nrohab:
+            dias = int(digito)
+            rescribo = str(self.dni)+ ', ' + str(nrohabit) + ', ' + str(entrada) + ', ' + str(salida)
+            
+            for i in listahab:
+                if i == nrohabit:
                     montodiario = i.precio
-                    listahabocupadas.remove(i)
-            lista[len(lista)-1][3] = fco
             with open(FILE, 'w', newline='', encoding='utf-8') as archivo:
                 escritor = csv.writer(archivo)
                 for reserva in lista:
@@ -612,7 +582,7 @@ class Cliente(Usuario):
                 descripcionmulta = 'Multa por check out fuera de horario establecido'
             montotot = dias*montodiario
             recaudacion_diaria(montotot)
-            descripcion = 'Estadia desde ' + str(fci) + ' hasta ' + str(fco)
+            descripcion = 'Estadia desde ' + str(entrada) + ' hasta ' + str(salida)
             file2 =   str(self.nombreusuario) + '_gastos.csv'
             with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
                 writer =csv.writer(registro)
@@ -622,23 +592,21 @@ class Cliente(Usuario):
                     gasto2 = [multa, descripcionmulta]
                     writer.writerow(gasto2) 
                     recaudacion_diaria(multa)
-        else: 
-            if len(lista)==1: 
-                print('Aún no ha hecho reservas')
-            if lista[len(lista)-1][3] != '':
-                print('Usted ya ha terminado todas sus reservas')
-        fp = 'habitaciones_ocupadas.csv'
-        with open (fp, 'w', newline = '', encoding = 'utf-8')as arc:
-            escritor = csv.writer(arc)
-            for i in listahabocupadas:
-                noc = i.nro
-                co = i.capacidad
-                po = i.precio
-                cato = i.categoria
-                bo = i.balcon
-                bpo = i.banopriv
-                habo = [noc, co, po, cato, bo, bpo]
-                escritor.writerow(habo) 
+    
+            fp = 'habitaciones_ocupadas.csv'
+            with open (fp, 'w', newline = '', encoding = 'utf-8')as arc:
+                escritor = csv.writer(arc)
+                for i in listahabocupadas:
+                    noc = i.nro
+                    co = i.capacidad
+                    po = i.precio
+                    cato = i.categoria
+                    bo = i.balcon
+                    bpo = i.banopriv
+                    habo = [noc, co, po, cato, bo, bpo]
+                    escritor.writerow(habo) 
+        except FileNotFoundError:
+            return
     
     def buffet(self):
         ''' Este metodo al ser ejecutado te presenta el menu con sus distintas opciones, permitiendote elegir una opcion a la vez.
@@ -823,8 +791,8 @@ class Mantenimiento(Personal):
     def __init__(self, nombre, apellido, nombreusuario, dni, contraseña,sueldo):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña, sueldo)
 
-# persona=Mantenimiento("ma","u","man","23","ma",12)
-# persona1=Limpieza("oeter","u","man","23","ma",12)
+#persona=Mantenimiento("ma","u","man","23","ma",12)
+#persona1=Limpieza("oeter","u","man","23","ma",12)
 
 # print(persona.nro_personal)
 # print(persona1.nro_personal)
