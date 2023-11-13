@@ -376,3 +376,24 @@ def menu_cliente(cuenta):
                 print("Usted no hizo el check in. Ingrese nuevamente una opcion")
                 opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
                 opcion = checkNro(opcion,4,0)
+
+def cant_clientes_x_categoria(listaClientes):
+    cliente_sin_gastos=0
+    premium=0
+    standar=0
+    for item in listaClientes:
+        nombre_archivo = f"{item}_gastos.csv"
+
+        try:
+            with open(nombre_archivo, 'r') as file:
+                lector_csv = csv.reader(file)
+                suma = sum(int(fila[0]) for fila in lector_csv)
+                print(suma)
+            if suma <50000:
+                standar+=1
+            elif suma>50000:
+                premium+=1
+
+        except FileNotFoundError:
+            cliente_sin_gastos+=1
+    print(f"La cantidad de clientes sin gastos es: {cliente_sin_gastos}\nLa cantidad de clientes categoria Standar es: {standar}\nLa cantidad de clientes premium es: {premium}")

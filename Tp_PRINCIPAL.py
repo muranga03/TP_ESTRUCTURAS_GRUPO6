@@ -310,24 +310,24 @@ class Recaudaciones:
         except FileNotFoundError:
             print(f"Creando archivo {self.nombre_archivo}")
 
-def recaudacion_diaria(recaudado,parametro=False):
+def recaudacion_diaria(recaudado,hoy,parametro=False):
     fundraiser = Recaudaciones("Recaudaciones.txt")
-    fecha=fecha_actual()
-    if type(fecha)==dt.date:
-        fecha_2 = fecha.strftime('%Y-%m-%d')
-        fecha=fecha_2
+   
+    if type(hoy)==dt.date:
+        fecha_2 = hoy.strftime('%Y-%m-%d')
+        hoy=fecha_2
         
     # Registrar donaciones diarias
-    fundraiser.guardar_recaudacion(fecha, recaudado)
+    fundraiser.guardar_recaudacion(hoy, recaudado)
 
     # Guardar data en el archivo
     fundraiser.guardar_en_archivo()
 
     # Obtener totales diarios
-    total_1 = fundraiser.obtener_total_diario(fecha)
+    total_1 = fundraiser.obtener_total_diario(hoy)
     
-    if parametro:
-        print(f"Total recaudado en {fecha}: ${total_1}")
+    if parametro==True:
+        print(f"Total recaudado en {hoy}: ${total_1}")
 
 def print_menu(menu):
     print("Menu:")
@@ -642,14 +642,14 @@ class Cliente(Usuario):
     
     def buffet(self):
         ''' Este metodo al ser ejecutado te presenta el menu con sus distintas opciones, permitiendote elegir una opcion a la vez.
-        Una vez terminado tu pedido hace la suma del total y lo agrega a tus historial de gastos como cliente y a la recaudacion diaria'''
+        Una vez terminado tu pedido hace la suma del total y lo agrega a tus historial de gastos como cliente y a la recaudacion diaria. Esta funcion utiliza un diccionario en buffet_menu'''
         buffet_menu = {
-            "1) Desayuno": 2200,
-            "2) Almuerzo": 4000,
-            "3) Merienda": 2000,
-            "4) Cena": 4500,
-            "5) Refresco": 500,
-            "6) Agua": 400,
+            "1) Desayuno": 220,
+            "2) Almuerzo": 400,
+            "3) Merienda": 200,
+            "4) Cena": 450,
+            "5) Refresco": 50,
+            "6) Agua": 40,
         }
 
         orden = []
@@ -679,7 +679,7 @@ class Cliente(Usuario):
             for item in orden:
                 print(item)
             print(f"Costo total: ${costo_total:.2f}")
-            recaudacion_diaria(costo_total)
+            recaudacion_diaria(costo_total,hoy)
             file2 =   str(self.nombreusuario) + '_gastos.csv'
             descripcion = 'Compra en el buffet'
             with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
@@ -700,7 +700,6 @@ class Cliente(Usuario):
         except IOError as e:
             print(f"Error al guardar la queja: {e}")    
     
-
 
 class Personal(Usuario):
     numero=1
