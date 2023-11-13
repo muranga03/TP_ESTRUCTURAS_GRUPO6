@@ -130,6 +130,7 @@ class Reserva:
         self.entrada = entrada
         self.salida = salida
         self.prox = None
+
 class Lista_reservas:
     def __init__(self):
         self.head = None
@@ -309,7 +310,7 @@ class Recaudaciones:
         except FileNotFoundError:
             print(f"Creando archivo {self.nombre_archivo}")
 
-def recaudacion_diaria(recaudado):
+def recaudacion_diaria(recaudado,parametro=False):
     fundraiser = Recaudaciones("Recaudaciones.txt")
     fecha=fecha_actual()
     if type(fecha)==dt.date:
@@ -325,8 +326,8 @@ def recaudacion_diaria(recaudado):
     # Obtener totales diarios
     total_1 = fundraiser.obtener_total_diario(fecha)
     
-
-    print(f"Total recaudado en {fecha}: ${total_1}")
+    if parametro:
+        print(f"Total recaudado en {fecha}: ${total_1}")
 
 def print_menu(menu):
     print("Menu:")
