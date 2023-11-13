@@ -525,7 +525,7 @@ class Cliente(Usuario):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña)
         self.nro_cliente=Cliente.numero
         Cliente.numero+=1
-    def check_in(self):
+    def check_in(self,hoy): #Mete al usuario al hotel, al hacerlo, se agrega la informacion al archvo del cliente
         FILE = str(self.dni) + '_historial.csv'
         hora = dt.datetime.now().strftime("%H:%M")
         lista = []
@@ -538,7 +538,6 @@ class Cliente(Usuario):
                 for fila in lector:
                     lista.append(fila)
         except FileNotFoundError:  # Si se encuentra un error se ejecuta esta parte
-            print("El archivo", FILE, "no existe. Se creará el archivo", FILE)
             with open(FILE,'a', encoding = 'utf-8') as archivo:
                 lista.append(['DNI','Habitacion','Fecha Check-in','Fecha Check-Out'])
                 escritor = csv.writer(archivo)
@@ -606,7 +605,7 @@ class Cliente(Usuario):
         else:
             print('Usted ya esta ocupando una habitación')  
 
-    def check_out(self,dias):
+    def check_out(self,hoy):
         FILE = str(self.dni) + '_historial.csv'
         lista = []
         multa = 0
