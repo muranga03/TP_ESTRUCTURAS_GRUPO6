@@ -50,7 +50,8 @@ def signIn(listaClientes):
         apellido = input("Ingrese su apellido solo con letras\n ->")
     apellido = nombre.upper()
     dni = input("Ingrese su DNI\n ->")
-    dni = checkNro(dni,8,8)
+    while dni.isnumeric()==False or len(dni)!=8:
+        dni = input("Ingrese su dni solo con numeros y con 8 digitos\n ->")
     contra = input("Ingrese su contraseña, debe tener mas de 5 caracteres sin espacios ni comas\n ->")
     while len(contra)<5 or ' ' in contra or ',' in contra:
         contra = input("Ingrese su contraseña denuevo, debe contener al menos 5 caracteres y no puede contener espacios ni comas\n ->")
@@ -115,7 +116,7 @@ def personalArchivo(listaPersonal,instancia):
             escritor = csv.writer(archivo)
             escritor.writerows(lista)
             
-def ocupacion_actual(): #Obtiene y procesa los datos desde la lista de habitaciones ocupadas, luego lo transfiere a un archivo de registro
+def ocupacion_actual(hoy): #Obtiene y procesa los datos desde la lista de habitaciones ocupadas, luego lo transfiere a un archivo de registro
     listahabocupadas = habitaciones_ocupadas()
     listahab = cargar_habitaciones()
     cap_tot = 0
@@ -125,7 +126,6 @@ def ocupacion_actual(): #Obtiene y procesa los datos desde la lista de habitacio
     for j in listahabocupadas:
         ocu_actual += j.capacidad
     porcentaje_ocupado = (ocu_actual/cap_tot)*100
-    hoy = fecha_actual()
     fn = 'ocupacion_diaria.csv'
     info = [hoy, porcentaje_ocupado]
     with open(fn, 'a',newline = '', encoding = 'utf-8') as archivo:
@@ -133,10 +133,9 @@ def ocupacion_actual(): #Obtiene y procesa los datos desde la lista de habitacio
         escritor.writerow(info)
     return porcentaje_ocupado
    
-def ocupacion_segun_tipo(): #Obtiene y procesa los datos desde la lista de habitaciones ocupadas, luego lo transfiere a un archivo de registro
+def ocupacion_segun_tipo(hoy): #Obtiene y procesa los datos desde la lista de habitaciones ocupadas, luego lo transfiere a un archivo de registro
     listahabocupadas = habitaciones_ocupadas()
     listahab = cargar_habitaciones()
-    hoy = fecha_actual()
     cap_bas= 0
     ocu_bas = 0
     cap_med = 0
@@ -238,7 +237,7 @@ def crearPersonal(tipo,listaPersonal):
     if tipo != 0:
         usuario = input("Ingrese su nombre de usuario, no puede tener espacios ni comas. Si desea salir ingrese 'quit'\n ->")
         while " " in usuario or "," in usuario:
-            usuario = input("Ingrese su nombre de usuario, no puede tener espacios ni comas. Si desea salir ingrese 'quit'\n ->")
+            usuario = input("Ingrese el nombre de usuario, no puede tener espacios ni comas. Si desea salir ingrese 'quit'\n ->")
             if usuario == "quit":
                 return
         if listaPersonal != []:    
@@ -255,7 +254,8 @@ def crearPersonal(tipo,listaPersonal):
             apellido = input("Ingrese el apellido solo con letras\n ->")
         apellido = nombre.upper()
         dni = input("Ingrese el DNI\n ->")
-        dni = checkNro(dni,8,8)
+        while dni.isnumeric()==False or len(dni)!=8:
+            dni = input("Ingrese su dni solo con numeros y con 8 digitos\n ->")
         contra = input("Ingrese la contraseña, debe tener mas de 5 caracteres sin espacios ni comas\n ->")
         while len(contra)<5 or ' ' in contra or ',' in contra:
             contra = input("Ingrese la contraseña denuevo, debe contener al menos 5 caracteres y no puede contener espacios ni comas\n ->")
@@ -339,6 +339,7 @@ def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta
             
             elif opcion == 0:
                 break
+            
 def menu_cliente(cuenta):
     opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
     opcion = checkNro(opcion,0,4)

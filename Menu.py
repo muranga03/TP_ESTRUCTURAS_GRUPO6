@@ -8,8 +8,8 @@ listaPersonal = []
 hoy = fecha_actual()
 clientesArchivo(listaClientes,"descarga")
 personalArchivo(listaPersonal,"descarga")
-ocupActual = ocupacion_actual()
-ocupBas , ocupMed , ocupPrem = ocupacion_segun_tipo()
+ocupActual = ocupacion_actual(hoy)
+ocupBas , ocupMed , ocupPrem = ocupacion_segun_tipo(hoy)
 tipo_menu = None
 
 menu_general = True
