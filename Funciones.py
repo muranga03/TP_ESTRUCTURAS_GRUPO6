@@ -206,9 +206,20 @@ def ocupacion_segun_tipo(): #Obtiene y procesa los datos desde la lista de habit
 #         print('Solo se encontró un registro de la ocupación diaria')
 #         print('El porcentaje de ocupacion de la fecha: ', hoy, 'fue del :', ocupacion, '%')
 
-def checkNro(numero):
-    while numero.isnumeric()==False:
+def checkNro(numero,maximo,minimo=0):
+    '''Se fija si la variable numero pedida es un numero y si esta entre los valores minimo y maximo incluidos. En caso de no ingresar un minimo
+    este es 0 por default'''
+    intervalo = False
+    while numero.isnumeric()==False and intervalo==False:
         numero = input("Solo debe contener numeros\n ->")
+        if maximo != None:
+            try:
+                if minimo<=int(numero)<=maximo:
+                    intervalo = True
+            except TypeError:
+                intervalo = False
+        else:
+            intervalo = True
     numero = int(numero)
     return numero
 
@@ -255,22 +266,13 @@ def crearPersonal(tipo,listaPersonal):
             nuevoPersonal = Mantenimiento(nombre,apellido,usuario,dni,contra,sueldo)
         listaPersonal.append(nuevoPersonal)
 
-
-
-if __name__ == "__main__":
-    # persona = Cliente("Pedro","Massalin","Pedrom",45617662,"massa123")
-    # persona2 = Cliente("Mato","U","matiu",45617663,"matiu123")
-    # lista = [persona,persona2]
-    lista = []
-    lista = clientesArchivo(lista,"descarga")
-
 def menu_Limpieza_Mantenimiento(cuenta):
     '''Esta funcion sirve para el menu de limpieza y mantenimiento. Cuando el usuario ingresa le aparecen la siguientes 3 opciones.
       Si elige la opcion 1 entonces se ejecuta otra funcion llamada realizar_tarea, metodo de la clase personal. 
       En las otras dos opciones sale del programa mediante un break'''
     while True:
         print("\nMenú:")
-        print("1. Realizar Tarea")
+        print("1. Realizar Primer Tarea")
         print("2. Renunciar")
         print("3. Salir del programa")
         opcion = input("Elige una opción: ")
@@ -279,7 +281,7 @@ def menu_Limpieza_Mantenimiento(cuenta):
             cuenta.realizar_tarea()
         elif opcion == "2":
             cuenta.baja()
-            print("Usted ha renunciado. Muchas gracias por su trabaja realizado durante todo este tiempo")
+            print("Usted ha renunciado. Muchas gracias por su trabajo realizado durante todo este tiempo")
             break
         elif opcion == "3":
             print("Saliendo del programa.")
