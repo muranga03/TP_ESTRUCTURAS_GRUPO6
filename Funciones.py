@@ -31,7 +31,7 @@ def signIn(listaClientes,listaUsuarios):
     '''Esta funcion recibe como parametro una lista con todos los usuarios creados y pide los datos necesarios para
     generar un nuevo usuario. En caso de que ya exista el usuario imprime que ese nombre de usuario ya esta siendo usado y pide uno nuevo.
     Esta funcion solo puede usarse para crear un cliente. El personal lo genera el Administrador'''
-    usuario = input("Ingrese su nombre de usuario, no puede tener espacios ni comas. Si desea salir ingrese 'quit'\n ->")
+    usuario = " "
     while " " in usuario or "," in usuario:
         usuario = input("Ingrese su nombre de usuario, no puede tener espacios ni comas. Si desea salir ingrese 'quit'\n ->")
         if usuario == "quit":
@@ -98,7 +98,7 @@ def personalArchivo(listaPersonal,instancia):
                 for persona in lector:
                     if persona[0] == "Administrador":
                         personal = Administrativo(persona[1],persona[2],persona[3],persona[4],persona[5],persona[6])
-                    elif persona[0] == "Limpiador":
+                    elif persona[0] == "Limpieza":
                         personal = Limpieza(persona[1],persona[2],persona[3],persona[4],persona[5],persona[6])
                     elif persona[0] == "Mantenimiento":
                         personal = Mantenimiento(persona[1],persona[2],persona[3],persona[4],persona[5],persona[6])
@@ -246,7 +246,7 @@ def checkNro(numero,maximo=False,minimo=0):
                     intervalo = True
                     break
                 else:
-                    numero = input("Debe estar entre {} y {}".format(minimo,maximo))
+                    numero = input("Debe estar entre {} y {}\n".format(minimo,maximo))
             except ValueError:
                 numero = input("Solo debe contener numeros\n ->")          
         else:
@@ -297,7 +297,6 @@ def crearPersonal(tipo,listaPersonal):
                     sueldo = input("Ingrese el sueldo solo con numeros, debe ser positivo\n ->")
             except ValueError:
                 sueldo = input("Ingrese el sueldo solo con numeros, debe ser positivo\n ->")
-        print("se creo bien")
         if tipo == 1:
             nuevoPersonal = Administrativo(nombre,apellido,usuario,dni,contra,sueldo)
         elif tipo == 2:
@@ -337,49 +336,56 @@ def menu_Limpieza_Mantenimiento(cuenta,listaPersonal,listaClientes,listaUsuarios
         else:
             print("Opción no válida. Por favor, selecciona una opción válida.")
 
-def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy):
+def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy,listaClientes):
         '''Esta funcion sirve como menu para el personal de clase Administrativo. Permite realizar cada funcion que cumple un administrador mediante numeros que ingresa el usuario'''
-
-        while True:    
-            opcion = input("\n1: Crear una cuenta de Personal \n2: Ver porcentaje de ocupacion actual de habitaciones \n3: Ver Porcentaje de ocupacion actual de habitaciones segun su categoria \n4: Ver recaudacion de hoy \n5: Crear tarea \n6: Eliminar primer tarea \n7: Eliminar ultima queja \n0: Cerrar cuenta \n ->")
-            opcion = checkNro(opcion,7)
+        
+        while True:  
+            opcion = input("\n1: Crear una cuenta de Personal \n2: Ver porcentaje de ocupacion actual de habitaciones \n3: Ver Porcentaje de ocupacion actual de habitaciones segun su categoria \n4: Ver recaudacion de hoy \n5: Crear tarea \n6: Eliminar primer tarea \n7: Eliminar ultima queja \n8: Ver cantidad de clientes por categoria\n0: Cerrar cuenta \n ->")
+            opcion = checkNro(opcion,8) 
             if opcion == 1:
                 tipo = input("Seleccione el tipo de cuenta que desea crear:\n1: Cuenta Administrador \n2: Cuenta Limpieza \n3: Cuenta Mantenimiento \n0: Si desea regresar al menu \n ->")
                 tipo = checkNro(tipo,3)
                 crearPersonal(tipo,listaPersonal)
 
             elif opcion == 2:
-                print("El porcentaje de ocupacion de habitaciones actual es: " + ocupActual +'%')
+                print("El porcentaje de ocupacion de habitaciones actual es: " + str(ocupActual) +'%')
 
             elif opcion == 3:
-                print("El porcentaje de ocupacion de habitaciones de tipo basico actual es: " + ocupBas +'%' + "\nEl porcentaje de ocupacion de habitaciones de tipo medio actual es: " + ocupMed +'%' + "\nEl porcentaje de ocupacion de habitaciones de tipo medio actual es: " + ocupPrem +'%')
+                print("El porcentaje de ocupacion de habitaciones de tipo Basico actual es: " + str(ocupBas) +'%' + "\nEl porcentaje de ocupacion de habitaciones de tipo Medio actual es: " + str(ocupMed) +'%' + "\nEl porcentaje de ocupacion de habitaciones de tipo Premium actual es: " + str(ocupPrem) +'%')
                 
             elif opcion == 4:
-                cuenta.ver_recaudacion_diaria(hoy,True)
+                cuenta.ver_recaudacion_diaria(hoy)
                 
             elif opcion == 5:
-                tipo == input("Ingrese a que personal quiere agregarle la tarea: \n1: Administrador \n2: Limpieza \n3: Mantenimiento")
-                tipo = checkNro(tipo,3,1)
+                tipo_tarea = input("Ingrese a que personal quiere agregarle la tarea: \n1: Administrador \n2: Limpieza \n3: Mantenimiento\n ->")
+                tipo_tarea = checkNro(tipo_tarea,3,1)
                 print("Los trabajos disponibles para el tipo de personal elegido son los siguientes: ")
-                if tipo == 1:
+                if tipo_tarea == 1:
                     clase =  Administrativo
-                if tipo == 2:
+                    
+                if tipo_tarea == 2:
                     clase = Limpieza
-                if tipo == 3:
+                    
+                if tipo_tarea == 3:
                     clase = Mantenimiento
+                    
                 cont=0
                 for i in clase.trabajos:
-                    print(cont + ": " + i)
-                    cont=+1
-                tarea = input("Ingrese la opcion deseada")
-                tarea = checkNro(tarea,len(clase.trabajos))
-                cuenta.asignar_tarea(clase.trabajos[tarea],tipo)
+                    print(f"{cont}: {i}")
+                    cont+=1
+                
+                tarea = input("Ingrese la opcion deseada:")
+                tarea = checkNro(tarea,len(clase.trabajos)-1)
+                cuenta.asignar_tarea(clase.trabajos[tarea],tipo_tarea)
 
             elif opcion == 6:
                 cuenta.realizar_tarea()
 
             elif opcion == 7:
                 cuenta.eliminar_ultima_queja()
+            
+            elif opcion==8:
+                cant_clientes_x_categoria(listaClientes)
             
             elif opcion == 0:
                 cuenta.egreso()
@@ -420,18 +426,19 @@ def cant_clientes_x_categoria(listaClientes):
     premium=0
     standar=0
     for item in listaClientes:
-        nombre_archivo = f"{item}_gastos.csv"
+        nombre=item.nombreusuario
+        nombre_archivo = f"{nombre}_gastos.csv"
 
         try:
             with open(nombre_archivo, 'r') as file:
                 lector_csv = csv.reader(file)
                 suma = sum(int(fila[0]) for fila in lector_csv)
                 print(suma)
-            if suma <50000:
+            if 0<suma <50000:
                 standar+=1
             elif suma>50000:
                 premium+=1
-
         except FileNotFoundError:
             cliente_sin_gastos+=1
-    print(f"La cantidad de clientes sin gastos es: {cliente_sin_gastos}\nLa cantidad de clientes categoria Standar es: {standar}\nLa cantidad de clientes premium es: {premium}")
+    print(f"La cantidad de clientes sin gastos es: {cliente_sin_gastos}\nLa cantidad de clientes categoria Standar es: {standar}\nLa cantidad de clientes Premium es: {premium}")
+

@@ -42,7 +42,7 @@ while menu_general:
     if tipo_menu == "Administrador":
         cuenta.ingreso()
         '''La funcion esta detallada en Funciones.py'''
-        menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy)
+        menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy,listaClientes)
 
     if tipo_menu == "Mantenimiento":
         cuenta.ingreso()
