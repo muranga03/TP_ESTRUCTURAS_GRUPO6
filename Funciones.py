@@ -116,180 +116,33 @@ def personalArchivo(listaPersonal,instancia):
             escritor = csv.writer(archivo)
             escritor.writerows(lista)
 
-def mostrar_habitaciones():
+
+                        
+                        
+def cargar_lista_reservas(listaClientes):
+    lista_reservas  = Lista_reservas()
+    FILE = 'lista_reservas.csv'
     listahab = cargar_habitaciones()
-    print('Desea visualizar las habitaciones con algun filtro?')
-    rta = input('Si no desea utilizar un filtro, inserte el caracter n, si desea utilizar algun filtro, ingrese cualquier otro caracter')
-    if rta ==  'n' or rta == 'N':
-        print('Las habitaciones son:')
-        for i in listahab:
-            print(i)
-    else:
-        correcto = False
-        while correcto == False:
-            filtro1 = input('Ingrese que tipo de filtro quiere aplicar: categoria, capacidad, precio')
-            filtro1 = filtro1.lower()
-            if filtro1 ==  'categoria' or filtro1 == 'capacidad' or filtro1 == 'precio':
-                correcto = True
-        if filtro1 == 'categoria':
-            bien = False
-            while bien == False:
-                cat = input('ingrese la categoria elegida: premium, intermedia, basica')
-                cat = cat.lower()
-                cat= cat.capitalize()
-                if cat == 'Premium' or cat =='Intermedia' or cat == 'Basica':
-                    bien = True
-            rta = input('Si no desea utilizar otro filtro, inserte el caracter n, si desea utilizar algun filtro, ingrese cualquier otro caracter')
-            if rta ==  'n' or rta == 'N':
-                print('Las habitaciones de la categoria ', cat, 'son:')
-                for i in listahab:
-                    if i.categoria == cat:
-                        print(i)
-            else: 
-                correcto = False
-                while correcto == False:
-                    filtro2 = input('Ingrese que tipo de filtro quiere aplicar:capacidad, precio')
-                    filtro2  = filtro2.lower()
-                    if filtro2 == 'capacidad' or filtro2 =='precio':
-                        correcto = True
-                if filtro2 == 'capacidad':
-                    aprobado = False
-                    while aprobado == False:
-                        numero = input('ingrese la capacidad minima con la que desea filtrar')
-                        if numero.isdigit():
-                            aprobado = True
-                            numero = int(numero)
-                    print('Las habitaciones de la categoria ', cat, 'y capacidad mayor a', numero,  'son:')
-                    imprimio = False
-                    for i in listahab:
-                        if i.categoria == cat and i.capacidad >= numero:
-                            print(i)
-                            imprimio = True
-                    if imprimio == False:
-                        print('No hay habitaciones con estos requerimientos')
-                        
-                else:
-                    aprobado = False
-                    while aprobado== False:
-                        numero = input('ingrese el precio maximo con el que desea filtrar')
-                        if numero.isdigit():
-                            aprobado = True
-                            numero = int(numero)
-                    print('Las habitaciones de la categoria ', cat, 'y precio menor a', numero,  'son:')
-                    imprimio = False
-                    for i in listahab:
-                        if i.categoria == cat and i.precio <=numero:
-                            print(i)
-                            imprimio == True
-                        if imprimio == False:
-                            print('No hay habitaciones con estos requerimientos')
-                        
-        elif filtro1 == 'capacidad':
-            bien = False
-            while bien == False:
-                numero = input('ingrese la capacidad minima con la que desea filtrar')
-                if numero.isdigit():
-                    bien = True
-                    numero = int(numero)
-            rta = input('Si no desea utilizar otro filtro, inserte el caracter n, si desea utilizar algun filtro, ingrese cualquier otro caracter')
-            if rta ==  'n' or rta == 'N':
-                print('Las habitaciones con capacidad mayor a', numero, 'son:')
-                for i in listahab:
-                    if i.capacidad >=numero:
-                        print(i)
-            else:
-                correcto = False
-                while correcto == False:
-                    filtro2 = input('Ingrese que tipo de filtro quiere aplicar:categoria, precio')
-                    filtro2  = filtro2.lower()
-                    if filtro2 == 'categoria' or filtro2 =='precio':
-                        correcto = True
-                if filtro2 == 'categoria':
-                    bien = False
-                    while bien == False:
-                        cat = input('ingrese la categoria elegida: premium, intermedia, basica')
-                        cat = cat.lower()
-                        cat= cat.capitalize()
-                        if cat == 'Premium' or cat =='Intermedia' or cat == 'Basica':
-                            bien = True
-                    print('Las habitaciones de la categoria ', cat, 'y capacidad mayor a', numero,  'son:')
-                    imprimio = False
-                    for i in listahab:
-                        if i.capacidad >= numero and i.categoria == cat:
-                            print(i)
-                            imprimio == True
-                    if imprimio == False:
-                        print('No hay habitaciones con estos requerimientos')
-                else:
-                    aprobado = False
-                    while aprobado== False:
-                        precio = input('ingrese el precio maximo con el que desea filtrar')
-                        if precio.isdigit():
-                            aprobado = True
-                            precio = int(precio)
-                    print('Las habitaciones con capacidad mayor a ', numero, 'y precio menor a', precio,  'son:')
-                    imprimio = False
-                    for i in listahab:
-                        if i.capacidad >= numero and i.precio <=precio:
-                            print(i)
-                            imprimio == True
-                    if imprimio == False:
-                        print('No hay habitaciones con estos requerimientos')
-        elif filtro1 == 'precio':
-            bien = False
-            while bien == False:
-                precio = input('ingrese el precio maximo con el que desea filtrar')
-                if precio.isdigit():
-                    bien = True
-                    precio = int(precio)
-            rta = input('Si no desea utilizar otro filtro, inserte el caracter n, si desea utilizar algun filtro, ingrese cualquier otro caracter')
-            if rta ==  'n' or rta == 'N':
-                print('Las habitaciones con precio menor a', precio, 'son:')
-                imprimio = True
-                for i in listahab:
-                    if i.precio <= precio:
-                        print(i)  
-                        imprimio == True
-                if imprimio == False:
-                    print('No hay habitaciones con estos requerimientos')
-            else:
-                correcto = False
-                while correcto == False:
-                    filtro2 = input('Ingrese que tipo de filtro quiere aplicar:categoria, capacidad')
-                    filtro2  = filtro2.lower()
-                    if filtro2 == 'categoria' or filtro2 =='capacidad':
-                        correcto = True
-                if filtro2 == 'categoria':
-                    bien = False
-                    while bien == False:
-                        cat = input('ingrese la categoria elegida: premium, intermedia, basica')
-                        cat = cat.lower()
-                        cat= cat.capitalize()
-                        if cat == 'Premium' or cat =='Intermedia' or cat == 'Basica':
-                            bien = True
-                    print('Las habitaciones de la categoria ', cat, 'y precio menor a', precio,  'son:')
-                    imprimio = False
-                    for i in listahab:
-                        if i.precio <= precio and i.categoria == cat:
-                            print(i)
-                            imprimio == True
-                    if imprimio == False:
-                        print('No hay habitaciones con estos requerimientos')
-                else:
-                    aprobado = False
-                    while aprobado== False:
-                        numero = input('ingrese la capacidad minima con el que desea filtrar')
-                        if numero.isdigit():
-                            aprobado = True
-                            numero = int(numero)
-                    print('Las habitaciones con precio menor a  ', precio, 'y capacidad mayor a', numero,  'son:')
-                    imprimio = False
-                    for i in listahab:
-                        if i.capacidad >=  numero and i.precio <=precio:
-                            print(i)
-                            imprimio == True
-                    if imprimio == False:
-                        print('No hay habitaciones con estos requerimientos')
+    try:
+        with open(FILE,'r',encoding = 'utf-8') as archivo:
+            lector = csv.reader(archivo)
+            for fila in lector:
+                num = int(fila[1])
+                
+                for i in listahab: 
+                    if i.nro == num:
+                        habit = i
+                for j in listaClientes:
+                    if j.nombreusuario == fila[0]:
+                        usuario = j
+                sal = fila[3]
+                ent = fila[2]
+                salida = dt.datetime.strptime(sal, '%Y-%m-%d').date()
+                entrada = dt.datetime.strptime(ent, '%Y-%m-%d').date()
+                lista_reservas.agregar_reserva(habit,usuario,entrada,salida)
+        return lista_reservas
+    except FileNotFoundError:
+        return lista_reservas
 
 def ocupacion_actual(hoy): #Obtiene y procesa los datos desde la lista de habitaciones ocupadas, luego lo transfiere a un archivo de registro
     listahabocupadas = habitaciones_ocupadas()
@@ -533,40 +386,34 @@ def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta
                 break
             
 def menu_cliente(cuenta,lista_reservas,hoy):
-    opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-    opcion = checkNro(opcion,4,0)
-    while opcion!=0:
+    while True:
+        opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+        opcion = checkNro(opcion,4,0)
         if opcion==1:
-            try:
-                fd= open(f"{cuenta.nombreusuario}_historial.csv", "r")
-                print("Usted ya tiene una reserva")
-                opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-                opcion = checkNro(opcion,4,0)
-            except FileNotFoundError: 
-                cuenta.check_in(hoy)
-                opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-                opcion = checkNro(opcion,4,0)
-        else:
-            try:
-                fd= open(f"{cuenta.nombreusuario}_historial.csv", "r")
-                if opcion==2:
-                    cuenta.buffet()
-                    opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-                    opcion = checkNro(opcion,4,0)
-                elif opcion ==3:
-                    queja= input("Escriba la queja que quiere presentar")
-                    cuenta.presentar_queja(queja)
-                    opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-                    opcion = checkNro(opcion,4,0)
-                elif opcion ==4:
-                    cuenta.check_out(hoy)
-                    cuenta = None
-                    return
+            cuenta.crear_reserva(lista_reservas,hoy)
+            lista_reservas.subir_lista_reservas()
+        elif opcion == 2:
+            if lista_reservas.buscar_cliente_activo(cuenta.nombreusuario,hoy) == True: #Nos fijamos que el cliente tenga una reserva activa
+                cuenta.buffet(hoy)
+            else:
+                print('Usted no ha ingresado al hotel todavia')
+        elif opcion == 3:
+            if lista_reservas.buscar_cliente_activo(cuenta.nombreusuario,hoy) == True: #Nos fijamos que el cliente tenga una reserva activa
+                queja = input('Ingrese una queja')
+                cuenta.presentar_queja(queja)
+            else:
+                print('Usted no ha ingresado al hotel todavia')
+        elif opcion == 4:
+            if lista_reservas.buscar_cliente_activo(cuenta.nombreusuario,hoy) == False:
+                cuenta.cancelar_reserva(lista_reservas,hoy,cuenta.nombreusuario)
+                lista_reservas.subir_lista_reservas()
+            else: 
+                print('Usted no puede borrar una reserva si su estadia ya ha comenzado')
+        elif opcion == 0:
+            break
+    
 
-            except FileNotFoundError:
-                print("Usted no hizo el check in. Ingrese nuevamente una opcion")
-                opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-                opcion = checkNro(opcion,4,0)
+           
 
 def cant_clientes_x_categoria(listaClientes):
     cliente_sin_gastos=0

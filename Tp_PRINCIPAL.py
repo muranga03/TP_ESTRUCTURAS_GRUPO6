@@ -38,7 +38,6 @@ def fecha_actual():
         archivo.write(fecha)
         archivo.close()
     return fecha
-hoy = fecha_actual()
 
 def ingreso_y_egreso(legajo,hoy,renuncia,ingreso):
     '''Esta funcion trabaja el archivo de ingreso y egreso de cada empleado.
@@ -150,6 +149,7 @@ class Reserva:
         self.salida = salida
         self.prox = None
 
+
 class Lista_reservas:
     def __init__(self):
         self.head = None
@@ -157,20 +157,22 @@ class Lista_reservas:
         return self.head is None
     def subir_lista_reservas(self): #Sube los cambios a un archivo, para guardar la información
         FILE = 'lista_reservas.csv'
-        with open(FILE, 'a', newline = '', encoding = 'utf-8') as archivo:
+        with open(FILE, 'w', newline = '', encoding = 'utf-8') as archivo:
             escritor = csv.writer(archivo)
             if self.is_empty():
                 return
             current = self.head
             while current:
                 lista = []
-                lista.append(current.usuario.dni)
+                lista.append(current.usuario.nombreusuario)
                 lista.append(current.habit.nro)
                 lista.append(current.entrada)
                 lista.append(current.salida)
                 escritor.writerow(lista)
                 current = current.prox
         return
+    
+
     def agregar_reserva(self,habit, usuario, fecha_ent, fecha_sal):
         new_node=Reserva(habit, usuario, fecha_ent, fecha_sal)
         if self.is_empty():
@@ -180,8 +182,8 @@ class Lista_reservas:
         while current.prox:
             current = current.prox
         current.prox = new_node
-        self.subir_lista_reservas()
-    def eliminar_reserva(self, nrodni):
+
+    def eliminar_reserva(self,hoy, nombreusuario):
         '''
         Este método busca el primer nodo cuyo valor se corresponde al argumento y lo desenlaza. 
         
@@ -189,13 +191,17 @@ class Lista_reservas:
         if self.is_empty():
             return
 
-        if self.head.usuario.dni == nrodni:
-            self.head = self.head.prox
+        if self.head.usuario.nombreusuario == nombreusuario:
+            if self.head.entrada > hoy:
+                self.head = self.head.prox
+                print('Usted ha eliminado su reserva')
+            else:
+                print('No puede eliminar una reserva que ya ha hecho el check in')
             return
 
         current = self.head
         while current.prox:
-            if current.prox.usuario.dni == nrodni:
+            if current.prox.usuario.nombreusuario == nombreusuario:
                 current.prox = current.prox.prox
                 return
             else: 
@@ -206,26 +212,34 @@ class Lista_reservas:
         current = self.head
         encontrado = False
         if self.is_empty():
-            print('No hay reservas hechas')
             return encontrado
         while current:
             if current.habit.nro == nrohab:
                 encontrado = True
-            else: 
-                current = current.prox
+            current = current.prox
         return encontrado
-    def buscar_cliente(self, nrodni):#Funcion que me sirve para ver si el cliente tiene o no reservas hechas, (el cliente solo puede tener una reserva a la vez)
+    def buscar_cliente(self, nombreusuario):#Funcion que me sirve para ver si el cliente tiene o no reservas hechas, (el cliente solo puede tener una reserva a la vez)
         current = self.head
         encontrado = False
         if self.is_empty():
             print('No hay reservas, está habilitado a hacer reservas')
             return encontrado
         while current:
-            if current.usuario.dni == nrodni:
+            if current.usuario.nombreusuario == nombreusuario:
                 encontrado = True 
-            else: 
-                current = current.prox
+            current = current.prox
         return encontrado
+    def buscar_cliente_activo(self, nombreusuario,hoy):#Funcion que me sirve para ver si el cliente tiene o no reservas hechas, (el cliente solo puede tener una reserva a la vez)
+        current = self.head
+        if self.is_empty():
+            print('No hay reservas, está habilitado a hacer reservas')
+            return False
+        while current:
+            if current.usuario.nombreusuario == nombreusuario:
+                if current.entrada < hoy:
+                    return True
+            current = current.prox
+        return False
     def confirmar_entrada(self,nrohab,entrada, salida): #entrada y salida son las fechas de reserva que pide el usuario
         current = self.head
         habilitado = True #Decide si esta bien pedida esta reserva, si es False no esta bien, si es True, si
@@ -235,30 +249,30 @@ class Lista_reservas:
             if current.habit.nro == nrohab:
                 if current.entrada > entrada: #si la fecha de entrada de reserva es mayor a la pedida, tengo que checkear que la fecha de salida pedida sea menor a la entrada de la reserva
                     if current.entrada > salida:
-                        habilitado = True #Como las fechas de entrada y salida son menores a la de entrada y reserva, se puede hacer la reserva (con la informacion que tenemos, despues hay que seguir checkeando el resto de las reservas)
-                    else:
+                        habilitado = True#Como las fechas de entrada y salida son menores a la de entrada y reserva, se puede hacer la reserva (con la informacion que tenemos, despues hay que seguir checkeando el resto de las reservas)
+                        return habilitado
+                    else: 
                         habilitado = False
+                        return habilitado
                 elif current.entrada < entrada < current.salida: #La entrada no puede pisarse con otra estadia
                     habilitado = False
+                    return habilitado
                 elif current.salida < entrada: #Si la fecha de entrada pedida, es mayor a la de salida de la resrva, todo ok
                     habilitado = True
-            else:
-                current = current.prox
+                    return habilitado
+            current = current.prox
         return habilitado
     def recorrer_para_check_in(self,hoy): #Funcion que recorre la lista todos los dias, para hacer 'entrar' a los clientes
         current = self.head
         encontrado = False
         if self.is_empty():
-            print('No hay reservas hechas')
             return encontrado
         while current:
             if current.entrada == hoy:
                 nrohabit = current.habit.nro
                 entrada = current.entrada
-                current.usuario.check_in(nrohabit,entrada)
-                current = current.prox
-            else:
-                current = current.prox
+                current.usuario.check_in(nrohabit,entrada,hoy)
+            current = current.prox
     def recorrer_para_check_out(self,hoy):
         '''
         Este metodo recorre la lista, y le hace el checkout a las reservas cuya fecha es igual a la fecha actual
@@ -276,7 +290,7 @@ class Lista_reservas:
                 nrohabit = current.habit.nro
                 entrada = current.entrada
                 salida = current.salida
-                current.prox.usuario.check_out(nrohabit,entrada,salida)
+                current.prox.usuario.check_out(nrohabit,entrada,salida,hoy)
                 current.prox = current.prox.prox
                 return
             else: 
@@ -294,6 +308,15 @@ class Lista_reservas:
             print('Las habtiaciones con reservas son:')
             for i in habitaciones_con_reservas:
                 print(i)
+    def quesoy(self):
+        if self.is_empty():
+            print('La lista esta vacia')
+            return
+        else:
+            current = self.head
+            while current:
+                print(current.habit.nro)
+                current = current.prox
 
 class Recaudaciones:
     def __init__(self, nombre_archivo):
@@ -370,7 +393,10 @@ class hab_prem(habitacion): #Habitacion Suite/Familiar
         self.balcon = balcon
         self. banopriv = banopriv
         self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
-        
+    def __str__(self):
+        return("La habitacion numero {}, tiene una capacidad para {} personas y un precio {} pesos, pertenece a la categoria {} que tiene baño privado y balcon".
+               format(self.nro, self.capacidad, self.precio, self.categoria))
+          
 class hab_med(habitacion): #Habitacion media
     def __init__(self,nro, capacidad,precio, categoria = 'Intermedia', balcon = False, banopriv= True):
         super().__init__(nro, capacidad,precio)
@@ -378,7 +404,9 @@ class hab_med(habitacion): #Habitacion media
         self.balcon = balcon
         self. banopriv = banopriv
         self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
-
+    def __str__(self):
+        return("La habitacion numero {}, tiene una capacidad para {} personas y un precio {} pesos, pertenece a la categoria {} que tiene baño privado y no tiene balcon".
+               format(self.nro, self.capacidad, self.precio, self.categoria))
 class hab_bas(habitacion): #Habitacion basica
     def __init__(self,nro, capacidad,precio, categoria = 'Basica', balcon = False, banopriv= False):
             super().__init__(nro, capacidad,precio)
@@ -386,7 +414,9 @@ class hab_bas(habitacion): #Habitacion basica
             self.balcon = balcon
             self. banopriv = banopriv
             self.listahab = [self.nro,self.capacidad,self.precio,self.categoria,self.balcon,self.banopriv]
-
+    def __str__(self):
+        return("La habitacion numero {}, tiene una capacidad para {} personas y un precio {} pesos, pertenece a la categoria {} que no tiene baño privado ni balcon".
+               format(self.nro, self.capacidad, self.precio, self.categoria))
 
 def crear_habitaciones():
     basica1 = hab_bas(101, 4, 1000)
@@ -490,6 +520,181 @@ def habitaciones_ocupadas():
         fd =  open(pf, 'x', encoding='utf-8')
     return listahabocupadas
 
+def mostrar_habitaciones():
+    listahab = cargar_habitaciones()
+    print('Desea visualizar las habitaciones con algun filtro?')
+    rta = input('Si no desea utilizar un filtro, inserte el caracter n, si desea utilizar algun filtro, ingrese cualquier otro caracter')
+    if rta ==  'n' or rta == 'N':
+        print('Las habitaciones son:')
+        for i in listahab:
+            print(i)
+    else:
+        correcto = False
+        while correcto == False:
+            filtro1 = input('Ingrese que tipo de filtro quiere aplicar: categoria, capacidad, precio')
+            filtro1 = filtro1.lower()
+            if filtro1 ==  'categoria' or filtro1 == 'capacidad' or filtro1 == 'precio':
+                correcto = True
+        if filtro1 == 'categoria':
+            bien = False
+            while bien == False:
+                cat = input('ingrese la categoria elegida: premium, intermedia, basica')
+                cat = cat.lower()
+                cat= cat.capitalize()
+                if cat == 'Premium' or cat =='Intermedia' or cat == 'Basica':
+                    bien = True
+            rta = input('Si no desea utilizar otro filtro, inserte el caracter n, si desea utilizar algun filtro, ingrese cualquier otro caracter')
+            if rta ==  'n' or rta == 'N':
+                print('Las habitaciones de la categoria ', cat, 'son:')
+                for i in listahab:
+                    if i.categoria == cat:
+                        print(i)
+            else: 
+                correcto = False
+                while correcto == False:
+                    filtro2 = input('Ingrese que tipo de filtro quiere aplicar:capacidad, precio')
+                    filtro2  = filtro2.lower()
+                    if filtro2 == 'capacidad' or filtro2 =='precio':
+                        correcto = True
+                if filtro2 == 'capacidad':
+                    aprobado = False
+                    while aprobado == False:
+                        numero = input('ingrese la capacidad minima con la que desea filtrar')
+                        if numero.isdigit():
+                            aprobado = True
+                            numero = int(numero)
+                    print('Las habitaciones de la categoria ', cat, 'y capacidad mayor a', numero,  'son:')
+                    imprimio = False
+                    for i in listahab:
+                        if i.categoria == cat and i.capacidad >= numero:
+                            print(i)
+                            imprimio = True
+                    if imprimio == False:
+                        print('No hay habitaciones con estos requerimientos')
+                        
+                else:
+                    aprobado = False
+                    while aprobado== False:
+                        numero = input('ingrese el precio maximo con el que desea filtrar')
+                        if numero.isdigit():
+                            aprobado = True
+                            numero = int(numero)
+                    print('Las habitaciones de la categoria ', cat, 'y precio menor a', numero,  'son:')
+                    imprimio = False
+                    for i in listahab:
+                        if i.categoria == cat and i.precio <=numero:
+                            print(i)
+                            imprimio == True
+                        if imprimio == False:
+                            print('No hay habitaciones con estos requerimientos')
+                        
+        elif filtro1 == 'capacidad':
+            bien = False
+            while bien == False:
+                numero = input('ingrese la capacidad minima con la que desea filtrar')
+                if numero.isdigit():
+                    bien = True
+                    numero = int(numero)
+            rta = input('Si no desea utilizar otro filtro, inserte el caracter n, si desea utilizar algun filtro, ingrese cualquier otro caracter')
+            if rta ==  'n' or rta == 'N':
+                print('Las habitaciones con capacidad mayor a', numero, 'son:')
+                for i in listahab:
+                    if i.capacidad >=numero:
+                        print(i)
+            else:
+                correcto = False
+                while correcto == False:
+                    filtro2 = input('Ingrese que tipo de filtro quiere aplicar:categoria, precio')
+                    filtro2  = filtro2.lower()
+                    if filtro2 == 'categoria' or filtro2 =='precio':
+                        correcto = True
+                if filtro2 == 'categoria':
+                    bien = False
+                    while bien == False:
+                        cat = input('ingrese la categoria elegida: premium, intermedia, basica')
+                        cat = cat.lower()
+                        cat= cat.capitalize()
+                        if cat == 'Premium' or cat =='Intermedia' or cat == 'Basica':
+                            bien = True
+                    print('Las habitaciones de la categoria ', cat, 'y capacidad mayor a', numero,  'son:')
+                    imprimio = False
+                    for i in listahab:
+                        if i.capacidad >= numero and i.categoria == cat:
+                            print(i)
+                            imprimio == True
+                    if imprimio == False:
+                        print('No hay habitaciones con estos requerimientos')
+                else:
+                    aprobado = False
+                    while aprobado== False:
+                        precio = input('ingrese el precio maximo con el que desea filtrar')
+                        if precio.isdigit():
+                            aprobado = True
+                            precio = int(precio)
+                    print('Las habitaciones con capacidad mayor a ', numero, 'y precio menor a', precio,  'son:')
+                    imprimio = False
+                    for i in listahab:
+                        if i.capacidad >= numero and i.precio <=precio:
+                            print(i)
+                            imprimio == True
+                    if imprimio == False:
+                        print('No hay habitaciones con estos requerimientos')
+        elif filtro1 == 'precio':
+            bien = False
+            while bien == False:
+                precio = input('ingrese el precio maximo con el que desea filtrar')
+                if precio.isdigit():
+                    bien = True
+                    precio = int(precio)
+            rta = input('Si no desea utilizar otro filtro, inserte el caracter n, si desea utilizar algun filtro, ingrese cualquier otro caracter')
+            if rta ==  'n' or rta == 'N':
+                print('Las habitaciones con precio menor a', precio, 'son:')
+                imprimio = True
+                for i in listahab:
+                    if i.precio <= precio:
+                        print(i)  
+                        imprimio == True
+                if imprimio == False:
+                    print('No hay habitaciones con estos requerimientos')
+            else:
+                correcto = False
+                while correcto == False:
+                    filtro2 = input('Ingrese que tipo de filtro quiere aplicar:categoria, capacidad')
+                    filtro2  = filtro2.lower()
+                    if filtro2 == 'categoria' or filtro2 =='capacidad':
+                        correcto = True
+                if filtro2 == 'categoria':
+                    bien = False
+                    while bien == False:
+                        cat = input('ingrese la categoria elegida: premium, intermedia, basica')
+                        cat = cat.lower()
+                        cat= cat.capitalize()
+                        if cat == 'Premium' or cat =='Intermedia' or cat == 'Basica':
+                            bien = True
+                    print('Las habitaciones de la categoria ', cat, 'y precio menor a', precio,  'son:')
+                    imprimio = False
+                    for i in listahab:
+                        if i.precio <= precio and i.categoria == cat:
+                            print(i)
+                            imprimio == True
+                    if imprimio == False:
+                        print('No hay habitaciones con estos requerimientos')
+                else:
+                    aprobado = False
+                    while aprobado== False:
+                        numero = input('ingrese la capacidad minima con el que desea filtrar')
+                        if numero.isdigit():
+                            aprobado = True
+                            numero = int(numero)
+                    print('Las habitaciones con precio menor a  ', precio, 'y capacidad mayor a', numero,  'son:')
+                    imprimio = False
+                    for i in listahab:
+                        if i.capacidad >=  numero and i.precio <=precio:
+                            print(i)
+                            imprimio == True
+                    if imprimio == False:
+                        print('No hay habitaciones con estos requerimientos')
+                        
 class Usuario:
     def __init__(self,nombre,apellido,nombreusuario,dni,contrasena):
         self.nombre=nombre
@@ -504,7 +709,7 @@ class Cliente(Usuario):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña)
         self.nro_cliente=Cliente.numero
         Cliente.numero+=1
-    def check_in(self,nrohabit,entrada): #Mete al usuario al hotel, al hacerlo, se agrega la informacion al archvo del cliente
+    def check_in(self,nrohabit,entrada,hoy): #Mete al usuario al hotel, al hacerlo, se agrega la informacion al archvo del cliente
         FILE = str(self.nombreusuario) + '_historial.txt'
         hora = dt.datetime.now().strftime("%H:%M")
         lista = []
@@ -535,7 +740,7 @@ class Cliente(Usuario):
                 bo = i.balcon
                 bpo = i.banopriv
                 habo = [noc, co, po, cato, bo, bpo]
-                print('Usted ha ingresado a la habitación', noc)
+                print('El usuario,',self.nombreusuario, 'ha ingresado a la habitación', noc)
         with open (fp, 'a', newline = '', encoding = 'utf-8')as arc:
             escritor = csv.writer(arc)
             escritor.writerow(habo)
@@ -556,10 +761,10 @@ class Cliente(Usuario):
                 writer =csv.writer(registro)
                 gasto = [multa, descripcionmulta]
                 writer.writerow(gasto)
-                recaudacion_diaria(multa)
+                recaudacion_diaria(multa,hoy)
             
 
-    def check_out(self,nrohabit,entrada,salida):
+    def check_out(self,nrohabit,entrada,salida,hoy):
         FILE = str(self.nombreusuario) + '_historial.txt'
         lista = []
         multa = 0
@@ -596,7 +801,7 @@ class Cliente(Usuario):
                 multa = 500
                 descripcionmulta = 'Multa por check out fuera de horario establecido'
             montotot = dias*montodiario
-            recaudacion_diaria(montotot)
+            recaudacion_diaria(montotot,hoy)
             descripcion = 'Estadia desde ' + str(entrada) + ' hasta ' + str(salida)
             file2 =   str(self.nombreusuario) + '_gastos.csv'
             with open(file2,'a', newline = '', encoding = 'utf-8') as registro:
@@ -623,7 +828,7 @@ class Cliente(Usuario):
         except FileNotFoundError:
             return
     
-    def buffet(self):
+    def buffet(self,hoy):
         ''' Este metodo al ser ejecutado te presenta el menu con sus distintas opciones, permitiendote elegir una opcion a la vez.
         Una vez terminado tu pedido hace la suma del total y lo agrega a tus historial de gastos como cliente y a la recaudacion diaria. Esta funcion utiliza un diccionario en buffet_menu'''
         buffet_menu = {
@@ -674,6 +879,93 @@ class Cliente(Usuario):
         except IOError as e:
             print(f"Error al guardar la queja: {e}")    
     
+    def crear_reserva(self, lista_reservas,hoy):
+        listahab = cargar_habitaciones()
+        listahabocupadas = habitaciones_ocupadas()
+        nombreusuario = self.nombreusuario
+        encontrado = lista_reservas.buscar_cliente(nombreusuario)#Esta variable me dice si el cliente tiene o no una reserva
+        if encontrado == False: 
+            existe = False
+            mostrar_habitaciones()
+            while existe == False:
+                nrohab = (input('Ingrese la habitacion deseada'))
+                try:
+                    existe = False
+                    nrohab = int(nrohab)
+                    for i in listahab:
+                        if i.nro == nrohab:
+                            print(i.nro)
+                            existe = True
+                    print(existe)
+                    if existe == False:
+                        print('Esta habitacion no existe')
+                except ValueError:
+                    print('Escriba el numero de habitacion Correctamente')
+            for i in listahab:
+                if i.nro == nrohab:
+                    habitacion = i
+            
+            if lista_reservas.buscar_cuarto(habitacion.nro) == False: #Busca en la lista de reservas, si no esta el cuarto, puede directamente hacer la reserva
+                fechabien = False
+                while fechabien == False: #Ojo fijarse en archivo fecha actual ya que los dias corren cada vez que se ejecuta el programa
+                    try:
+                        fci =input('ingrese la fecha en la que quiere reservar en el formato: yyyy-mm-dd')
+                        entrada = dt.datetime.strptime(fci, '%Y-%m-%d').date()
+                        if entrada > hoy:
+                            fechabien = True
+                    except ValueError:
+                        print('inserte la fecha en el formato pedido')
+                diasbien = False
+                while diasbien == False:
+                    try:
+                        dias = input('Ingrese la cantidad de dias que se quiere quedar')
+                        dias = int(dias)
+                        diasbien = True
+                    except ValueError:
+                        print('Inserte un valor unitario de dias')
+                salida = entrada + dt.timedelta(days = dias)
+                lista_reservas.agregar_reserva(habitacion,self,entrada,salida)
+                lista_reservas.subir_lista_reservas()
+                print('Se hizo la reserva exitosamente')
+            else:
+                loop = True
+                while loop:
+                    fechabien = False
+                    while fechabien == False:
+                        try:
+                            fci =input('ingrese la fecha en la que quiere reservar en el formato: yyyy-mm-dd')
+                            entrada = dt.datetime.strptime(fci, '%Y-%m-%d').date()
+                            if entrada > hoy:
+                                fechabien = True
+                        except ValueError:
+                            print('inserte la fecha en el formato pedido')
+                    diasbien = False
+                    while diasbien == False:
+                        try:
+                            dias = input('Ingrese la cantidad de dias que se quiere quedar')
+                            dias = int(dias)
+                            diasbien = True
+                        except ValueError:
+                            print('Inserte un valor unitario de dias')
+                    salida = entrada + dt.timedelta(days = dias)
+                    confirmado = lista_reservas.confirmar_entrada(habitacion.nro,entrada, salida)
+                    if confirmado == True:
+                        lista_reservas.agregar_reserva(habitacion,self,entrada,salida)
+                        print('Se hizo la reserva exitosamente')
+                        lista_reservas.subir_lista_reservas()
+                        loop = False
+                    else:
+                        print('\nEsa habitacion está reservada en el rango de las fechas pedidas\n')
+                        loop = True
+        else: 
+            print('Usted ya esta ocupando una habitación, por politica del hotel no puede hacer una reserva')
+    def cancelar_reserva(self,lista_reservas,hoy,nombreusuario):
+        nombreusuario = self.nombreusuario
+        presente = lista_reservas.buscar_cliente(nombreusuario)
+        if presente == False:
+            print('Usted no tiene reservas hechas')
+        else: 
+            lista_reservas.eliminar_reserva(hoy,nombreusuario)
 
 class Personal(Usuario):
     numero=1
@@ -683,15 +975,15 @@ class Personal(Usuario):
         Personal.numero+=1
         self.sueldo=sueldo
     
-    def ingreso (self):
+    def ingreso (self,hoy):
         legajo =self.nro_personal
         ingreso_y_egreso(legajo,hoy,False,True)
 
-    def egreso(self):
+    def egreso(self,hoy):
         legajo =self.nro_personal
         ingreso_y_egreso(legajo,hoy,False,False)
 
-    def renunciar(self):
+    def renunciar(self,hoy):
         legajo =self.nro_personal
         ingreso_y_egreso(legajo,hoy,True,False)
         
