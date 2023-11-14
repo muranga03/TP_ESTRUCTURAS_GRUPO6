@@ -4,14 +4,10 @@ from Tp_PRINCIPAL import *
 
 listaClientes = []
 listaPersonal = []
+
+hoy = fecha_actual()
 clientesArchivo(listaClientes,"descarga")
 personalArchivo(listaPersonal,"descarga")
-hoy = fecha_actual()
-print('Hoy es:2', hoy)
-lista_reservas = cargar_lista_reservas(listaClientes)
-lista_reservas.recorrer_para_check_in(hoy)
-lista_reservas.recorrer_para_check_out(hoy)
-lista_reservas.subir_lista_reservas()
 ocupActual = ocupacion_actual(hoy)
 ocupBas , ocupMed , ocupPrem = ocupacion_segun_tipo(hoy)
 tipo_menu = None
@@ -40,22 +36,22 @@ while menu_general:
             
    
     if tipo_menu == "Administrador":
-        cuenta.ingreso()
+        cuenta.ingreso(hoy)
         '''La funcion esta detallada en Funciones.py'''
         menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy,listaClientes)
 
     if tipo_menu == "Mantenimiento":
-        cuenta.ingreso()
+        cuenta.ingreso(hoy)
         '''La funcion esta detallada en Funciones.py'''
         menu_Limpieza_Mantenimiento(cuenta,listaPersonal,listaClientes,listaUsuarios)
 
     if tipo_menu == "Limpieza":
-        cuenta.ingreso()
+        cuenta.ingreso(hoy)
         '''La funcion esta detallada en Funciones.py'''
         menu_Limpieza_Mantenimiento(cuenta,listaPersonal,listaClientes,listaUsuarios)
     
     if tipo_menu=="Cliente":
-        menu_cliente(cuenta,lista_reservas,hoy)
+        menu_cliente(cuenta)
     
     tipo_menu = None
     cuenta = None

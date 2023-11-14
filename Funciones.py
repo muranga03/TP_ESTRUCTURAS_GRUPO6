@@ -57,6 +57,7 @@ def signIn(listaClientes,listaUsuarios):
         contra = input("Ingrese su contraseña denuevo, debe contener al menos 5 caracteres y no puede contener espacios ni comas\n ->")
     nuevoUsuario = Cliente(nombre,apellido,usuario,dni,contra)
     listaClientes.append(nuevoUsuario)
+
     
 def clientesArchivo(listaClientes,instancia):
     '''Esta funcion toma como parametros la lista de los clientes para poder cargar los clientes creados en un archivo al finalizar la ejecucion
@@ -114,286 +115,6 @@ def personalArchivo(listaPersonal,instancia):
         with open(file_path, 'w', newline='', encoding='utf-8') as archivo:
             escritor = csv.writer(archivo)
             escritor.writerows(lista)
-
-def fecha_actual():
-    pf = 'fecha_actual.txt'
-    try:
-        archivo = open(pf, 'r')
-        fechastr = archivo.readline()
-        archivo.close()
-        fecha = dt.datetime.strptime(fechastr, '%Y-%m-%d').date()
-        fecha = fecha + dt.timedelta(days = 1)
-        archivo = archivo = open(pf, 'w')
-        archivo.write(str(fecha))
-        archivo.close()
-    except FileNotFoundError:
-        fecha = str(dt.datetime.today().date())
-        archivo = open(pf, 'w')
-        archivo.write(fecha)
-        archivo.close()
-    return fecha
-
-def ingreso_y_egreso(nombre,hoy,renuncia,ingreso):
-    '''Esta funcion trabaja el archivo de ingreso y egreso de cada empleado.
-      Se ejecuta automaticamente cuando un personal ingresa a su cuenta, y nuevamente dando egreso cuando cierra el programa.
-       Tambien teine la opcion de renunciar '''
-    if renuncia:
-        datos= f"El legajo: {nombre}, RENUNCIO la fecha: {hoy}\n"
-    else:
-        if ingreso:
-            datos = f"El legajo: {nombre}, INGRESO la fecha: {hoy}\n"
-        else:
-            datos = f"El legajo: {nombre}, EGRESO la fecha: {hoy}\n"
-    try:
-        with open("Ingreso_y_Egreso_Personal.txt", "a") as archivo:
-            archivo.write(datos)
-        print("Acabas de ingresar")
-    except Exception as e:
-        print(f"Error al guardar los datos: {e}")
-
-def asignar_tarea(legajo,tarea):
-# Bajo el archivo con el historial del personal en una lista de listas
-    lista=[]
-    FILE= "Historial_del_personal.txt"
-    try:
-        with open(FILE, 'r', encoding='utf-8') as archivo:
-            lector = csv.reader(archivo)
-            for fila in lector:
-                lista.append(fila)
-        
-        
-    except FileNotFoundError:  
-        print("El archivo", FILE, "no existe.")
-    contador=0
-    for i in range(len(lista)):
-# Me fijo si el legajo ingresado para asignar la tarea pertenece a un personal en servicio       
-        if contador==0:
-            if int(legajo)==int(lista[i][2]):
-                try:
-                    fd= open("tareas.txt", "a")
-                    fd.write("El legajo, ")
-                    fd.write(str(legajo)+ ", tiene la siguiente asignatura:  ")
-                    fd.write(str(tarea))
-                    fd.write('\n')
-                    fd.close()
-                except FileNotFoundError:
-                    fd= open("tareas.txt", "x")
-                    fd.write(str(legajo)+ ", tiene la siguiente asignatura:  ")
-                    fd.write(str(tarea))
-                    fd.write('\n')
-                    fd.close()
-                contador+=1
-            else:
-                print("El legajo ingresado no es de un personal en servicio")
-                contador+=1
-
-def recaudacion_diaria(recaudado,hoy,parametro=False):
-    recaud = Recaudaciones("Recaudaciones.txt")
-   
-    if type(hoy)==dt.date:
-        fecha_2 = hoy.strftime('%Y-%m-%d')
-        hoy=fecha_2
-    recaud.guardar_recaudacion(hoy, recaudado)
-    recaud.guardar_en_archivo()
-    # Obtener totales diarios
-    total_1 = recaud.obtener_total_diario(hoy)
-    
-    if parametro==True:
-        print(f"Total recaudado en {hoy}: ${total_1}")
-
-def print_menu(menu):
-    print("Menu:")
-    for item, precio in menu.items():
-        print(f"{item}: ${precio:.2f}")
-
-def calcular_total(orden, menu):
-    costo_total = sum(menu[item] for item in orden)
-    return costo_total
-
-def cargar_lista_reservas(listaClientes):
-    lista_reservas  = Lista_reservas()
-    FILE = 'lista_reservas.csv'
-    listahab = cargar_habitaciones()
-    try:
-        with open(FILE,'r',encoding = 'utf-8') as archivo:
-            lector = csv.reader(archivo)
-            for fila in lector:
-                num = int(fila[1])
-                
-                for i in listahab: 
-                    if i.nro == num:
-                        habit = i
-                for j in listaClientes:
-                    if j.nombreusuario == fila[0]:
-                        usuario = j
-                sal = fila[3]
-                ent = fila[2]
-                salida = dt.datetime.strptime(sal, '%Y-%m-%d').date()
-                entrada = dt.datetime.strptime(ent, '%Y-%m-%d').date()
-                lista_reservas.agregar_reserva(habit,usuario,entrada,salida)
-        return lista_reservas
-    except FileNotFoundError:
-        return lista_reservas
-
-def ocupacion_actual(hoy): #Obtiene y procesa los datos desde la lista de habitaciones ocupadas, luego lo transfiere a un archivo de registro
-    listahabocupadas = habitaciones_ocupadas()
-    listahab = cargar_habitaciones()
-    cap_tot = 0
-    ocu_actual = 0
-    for i in listahab:
-        cap_tot += i.capacidad
-    for j in listahabocupadas:
-        ocu_actual += j.capacidad
-    porcentaje_ocupado = (ocu_actual/cap_tot)*100
-    fn = 'ocupacion_diaria.csv'
-    info = [hoy, porcentaje_ocupado]
-    with open(fn, 'a',newline = '', encoding = 'utf-8') as archivo:
-        escritor = csv.writer(archivo)
-        escritor.writerow(info)
-    return porcentaje_ocupado
-   
-def ocupacion_segun_tipo(hoy): #Obtiene y procesa los datos desde la lista de habitaciones ocupadas, luego lo transfiere a un archivo de registro
-    listahabocupadas = habitaciones_ocupadas()
-    listahab = cargar_habitaciones()
-    cap_bas= 0
-    ocu_bas = 0
-    cap_med = 0
-    ocu_med = 0
-    cap_prem = 0
-    ocu_prem = 0
-    for i in listahab:
-        if i.categoria == 'Premium':
-            cap_prem += i.capacidad
-        elif i.categoria == 'Intermedia':
-            cap_med += i.capacidad
-        elif i.categoria == 'Basica':
-            cap_bas += i.capacidad
-        
-    for j in listahabocupadas:
-        if j.categoria == 'Premium':
-            ocu_prem += j.capacidad
-        elif j.categoria == 'Intermedia':
-            ocu_med += j.capacidad
-        elif j.categoria == 'Basica':
-            ocu_bas += j.capacidad
-        
-    por_ocup_bas = (ocu_bas/cap_bas)*100
-    por_ocup_med = (ocu_med/cap_med)*100
-    por_ocup_prem = (ocu_prem/cap_prem)*100
-    fb = 'porcentaje_bas.csv'
-    info_bas = [hoy, por_ocup_bas]
-    with open(fb, 'a',newline = '', encoding = 'utf-8') as arch:
-        escritor = csv.writer(arch)
-        escritor.writerow(info_bas)
-    fm = 'porcentaje_med.csv'
-    info_med = [hoy, por_ocup_med]
-    with open(fm, 'a',newline = '',encoding = 'utf-8') as arc:
-        escritor = csv.writer(arc)
-        escritor.writerow(info_med)
-    fp = 'porcentaje_prem.csv'
-    info_prem = [hoy, por_ocup_prem]
-    with open(fp, 'a',newline = '', encoding = 'utf-8') as archiv:
-        escritor = csv.writer(archiv)
-        escritor.writerow(info_prem)
-    return por_ocup_bas, por_ocup_med, por_ocup_prem
-
-def crear_habitaciones():
-    basica1 = hab_bas(101, 4, 1000)
-    intermedia1 = hab_med(201, 2, 2000)
-    premium1 = hab_prem(301, 2, 5000)
-    basica2 = hab_bas(102, 3, 800)
-    intermedia2 = hab_med(202, 4, 3000)
-    premium2 = hab_prem(302, 2, 5000)
-    basica3 = hab_bas(103, 6, 1500)
-    intermedia3 = hab_med(203, 4, 3500)
-    premium3 = hab_prem(303, 2, 5000)
-    basica4 = hab_bas(104, 3, 800)
-    basica4 = hab_bas(104, 3, 800)
-    intermedia4 = hab_bas(204,2,2000)
-    premium4 = hab_bas(304,2,5000)
-    listahab = [] #Lista de todas las habitaciones(libres)
-    listahab.append(basica1)
-    listahab.append(intermedia1)
-    listahab.append(premium1)
-    listahab.append(basica2)
-    listahab.append(intermedia2)
-    listahab.append(premium2)
-    listahab.append(basica3)
-    listahab.append(intermedia3)
-    listahab.append(premium3)
-    listahab.append(basica4)
-    listahab.append(intermedia4)
-    listahab.append(premium4)
-    return listahab
-
-def escribir_habitaciones(listahab):
-    lista_archivo = [] #Lista de listas que se carga al archivo, para asi almacenar la inforamcion
-    for i in listahab:
-        habitacion = []
-        nro = int(i.nro)
-        capacidad =int(i.capacidad)
-        precio = int(i.precio)
-        categoria= i.categoria
-        balcon= bool(i.balcon)
-        banopriv= bool(i.banopriv) 
-        habitacion.append(nro)
-        habitacion.append(capacidad)
-        habitacion.append(precio)
-        habitacion.append(categoria)
-        habitacion.append(balcon)
-        habitacion.append(banopriv)
-        lista_archivo.append(habitacion)
-    pf = 'habitaciones.csv'
-    with open(pf, 'w', newline='', encoding='utf-8') as archivo:
-        escritor = csv.writer(archivo)
-        for j in lista_archivo:
-            escritor.writerow(j)
-    return listahab
-
-def cargar_habitaciones(): #Carga habitaciones desde archivo
-    pf = 'habitaciones.csv'
-    listahab = []
-    try:  
-        with open(pf, 'r', encoding='utf-8') as archivo:
-            lector = csv.reader(archivo)
-            for fila in lector:
-                nro = int(fila[0])
-                capacidad =int(fila[1])
-                precio = int(fila[2])
-                categoria = (fila[3])  
-                if categoria == 'Premium':
-                    habitacion = hab_prem(nro,capacidad,precio)   
-                elif categoria == 'Intermedia':
-                    habitacion = hab_med(nro,capacidad,precio)
-                elif categoria == 'Basica':
-                    habitacion = hab_bas(nro,capacidad,precio)
-                listahab.append(habitacion)                
-    except FileNotFoundError: #Si no lo encuentra, lo crea
-        listahab = crear_habitaciones()
-        listahab = escribir_habitaciones(listahab)
-    return listahab
-
-def habitaciones_ocupadas():
-    pf = 'habitaciones_ocupadas.csv'
-    listahabocupadas = []
-    try:  
-        with open(pf, 'r', encoding='utf-8') as archivo:
-            lector = csv.reader(archivo)
-            for fila in lector:
-                nro = int(fila[0])
-                capacidad =int(fila[1])
-                precio = int(fila[2])
-                categoria = (fila[3])  
-                if categoria == 'Premium':
-                    habitacion = hab_prem(nro,capacidad,precio)   
-                elif categoria == 'Intermedia':
-                    habitacion = hab_med(nro,capacidad,precio)
-                elif categoria == 'Basica':
-                    habitacion = hab_bas(nro,capacidad,precio)        
-                listahabocupadas.append(habitacion)
-    except FileNotFoundError:
-        fd =  open(pf, 'x', encoding='utf-8')
-    return listahabocupadas
 
 def mostrar_habitaciones():
     listahab = cargar_habitaciones()
@@ -569,7 +290,69 @@ def mostrar_habitaciones():
                             imprimio == True
                     if imprimio == False:
                         print('No hay habitaciones con estos requerimientos')
-  
+
+def ocupacion_actual(hoy): #Obtiene y procesa los datos desde la lista de habitaciones ocupadas, luego lo transfiere a un archivo de registro
+    listahabocupadas = habitaciones_ocupadas()
+    listahab = cargar_habitaciones()
+    cap_tot = 0
+    ocu_actual = 0
+    for i in listahab:
+        cap_tot += i.capacidad
+    for j in listahabocupadas:
+        ocu_actual += j.capacidad
+    porcentaje_ocupado = (ocu_actual/cap_tot)*100
+    fn = 'ocupacion_diaria.csv'
+    info = [hoy, porcentaje_ocupado]
+    with open(fn, 'a',newline = '', encoding = 'utf-8') as archivo:
+        escritor = csv.writer(archivo)
+        escritor.writerow(info)
+    return porcentaje_ocupado
+   
+def ocupacion_segun_tipo(hoy): #Obtiene y procesa los datos desde la lista de habitaciones ocupadas, luego lo transfiere a un archivo de registro
+    listahabocupadas = habitaciones_ocupadas()
+    listahab = cargar_habitaciones()
+    cap_bas= 0
+    ocu_bas = 0
+    cap_med = 0
+    ocu_med = 0
+    cap_prem = 0
+    ocu_prem = 0
+    for i in listahab:
+        if i.categoria == 'Premium':
+            cap_prem += i.capacidad
+        elif i.categoria == 'Intermedia':
+            cap_med += i.capacidad
+        elif i.categoria == 'Basica':
+            cap_bas += i.capacidad
+        
+    for j in listahabocupadas:
+        if j.categoria == 'Premium':
+            ocu_prem += j.capacidad
+        elif j.categoria == 'Intermedia':
+            ocu_med += j.capacidad
+        elif j.categoria == 'Basica':
+            ocu_bas += j.capacidad
+        
+    por_ocup_bas = (ocu_bas/cap_bas)*100
+    por_ocup_med = (ocu_med/cap_med)*100
+    por_ocup_prem = (ocu_prem/cap_prem)*100
+    fb = 'porcentaje_bas.csv'
+    info_bas = [hoy, por_ocup_bas]
+    with open(fb, 'a',newline = '', encoding = 'utf-8') as arch:
+        escritor = csv.writer(arch)
+        escritor.writerow(info_bas)
+    fm = 'porcentaje_med.csv'
+    info_med = [hoy, por_ocup_med]
+    with open(fm, 'a',newline = '',encoding = 'utf-8') as arc:
+        escritor = csv.writer(arc)
+        escritor.writerow(info_med)
+    fp = 'porcentaje_prem.csv'
+    info_prem = [hoy, por_ocup_prem]
+    with open(fp, 'a',newline = '', encoding = 'utf-8') as archiv:
+        escritor = csv.writer(archiv)
+        escritor.writerow(info_prem)
+    return por_ocup_bas, por_ocup_med, por_ocup_prem
+
 # def analisis_ocupacion(): #Genera un grafico de la ocupacion del hotel a lo largo del tiempo, si no hay informacion, devuelve la ocupacion actual
 #     file = 'ocupacion_diaria.csv'
 #     lista = []
@@ -669,6 +452,7 @@ def crearPersonal(tipo,listaPersonal):
             nuevoPersonal = Mantenimiento(nombre,apellido,usuario,dni,contra,sueldo)
         listaPersonal.append(nuevoPersonal)
 
+
 def menu_Limpieza_Mantenimiento(cuenta,listaPersonal,listaClientes,listaUsuarios):
     '''Esta funcion sirve para el menu de limpieza y mantenimiento. Cuando el usuario ingresa le aparecen la siguientes 3 opciones.
       Si elige la opcion 1 entonces se ejecuta otra funcion llamada realizar_tarea, metodo de la clase personal. 
@@ -683,7 +467,7 @@ def menu_Limpieza_Mantenimiento(cuenta,listaPersonal,listaClientes,listaUsuarios
         if opcion == "1":
             cuenta.realizar_tarea()
         elif opcion == "2":
-            cuenta.renunciar()
+            cuenta.renunciar(hoy)
             print("Usted ha renunciado. Muchas gracias por su trabajo realizado durante todo este tiempo")
             cont = 0
             for usr in listaPersonal:
@@ -693,7 +477,7 @@ def menu_Limpieza_Mantenimiento(cuenta,listaPersonal,listaClientes,listaUsuarios
             listaUsuarios = listaPersonal+listaClientes
             return listaUsuarios
         elif opcion == "0":
-            cuenta.egreso()
+            cuenta.egreso(hoy)
             print("Saliendo del programa.")
             break
         else:
@@ -751,36 +535,45 @@ def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta
                 cant_clientes_x_categoria(listaClientes)
             
             elif opcion == 0:
-                cuenta.egreso()
+                cuenta.egreso(hoy)
                 break
             
 def menu_cliente(cuenta,lista_reservas,hoy):
-    while True:
-        opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
-        opcion = checkNro(opcion,4,0)
+    opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+    opcion = checkNro(opcion,4,0)
+    while opcion!=0:
         if opcion==1:
-            cuenta.crear_reserva(lista_reservas,hoy)
-            lista_reservas.subir_lista_reservas()
-        elif opcion == 2:
-            if lista_reservas.buscar_cliente_activo(cuenta.nombreusuario,hoy) == True: #Nos fijamos que el cliente tenga una reserva activa
-                cuenta.buffet(hoy)
-            else:
-                print('Usted no ha ingresado al hotel todavia')
-        elif opcion == 3:
-            if lista_reservas.buscar_cliente_activo(cuenta.nombreusuario,hoy) == True: #Nos fijamos que el cliente tenga una reserva activa
-                queja = input('Ingrese una queja')
-                cuenta.presentar_queja(queja)
-            else:
-                print('Usted no ha ingresado al hotel todavia')
-        elif opcion == 4:
-            if lista_reservas.buscar_cliente_activo(cuenta.nombreusuario,hoy) == False:
-                cuenta.cancelar_reserva(lista_reservas,hoy,cuenta.nombreusuario)
-                lista_reservas.subir_lista_reservas()
-            else: 
-                print('Usted no puede borrar una reserva si su estadia ya ha comenzado')
-        elif opcion == 0:
-            break
-    
+            try:
+                fd= open(f"{cuenta.nombreusuario}_historial.csv", "r")
+                print("Usted ya tiene una reserva")
+                opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+                opcion = checkNro(opcion,4,0)
+            except FileNotFoundError: 
+                cuenta.check_in(hoy)
+                opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+                opcion = checkNro(opcion,4,0)
+        else:
+            try:
+                fd= open(f"{cuenta.nombreusuario}_historial.csv", "r")
+                if opcion==2:
+                    cuenta.buffet()
+                    opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+                    opcion = checkNro(opcion,4,0)
+                elif opcion ==3:
+                    queja= input("Escriba la queja que quiere presentar")
+                    cuenta.presentar_queja(queja)
+                    opcion = input("2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+                    opcion = checkNro(opcion,4,0)
+                elif opcion ==4:
+                    cuenta.check_out(hoy)
+                    cuenta = None
+                    return
+
+            except FileNotFoundError:
+                print("Usted no hizo el check in. Ingrese nuevamente una opcion")
+                opcion = input("1: Reservar habitacion \n2: Buffet \n3: Presentar queja \n4: Eliminar reserva \n0: Cerrar sesion \n ->")
+                opcion = checkNro(opcion,4,0)
+
 def cant_clientes_x_categoria(listaClientes):
     cliente_sin_gastos=0
     premium=0
