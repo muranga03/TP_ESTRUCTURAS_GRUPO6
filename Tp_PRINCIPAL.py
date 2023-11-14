@@ -40,17 +40,17 @@ def fecha_actual():
     return fecha
 hoy = fecha_actual()
 
-def ingreso_y_egreso(legajo,hoy,renuncia,ingreso):
+def ingreso_y_egreso(nombre,hoy,renuncia,ingreso):
     '''Esta funcion trabaja el archivo de ingreso y egreso de cada empleado.
       Se ejecuta automaticamente cuando un personal ingresa a su cuenta, y nuevamente dando egreso cuando cierra el programa.
        Tambien teine la opcion de renunciar '''
     if renuncia:
-        datos= f"El legajo: {legajo}, renuncio la fecha: {hoy}\n"
+        datos= f"El legajo: {nombre}, RENUNCIO la fecha: {hoy}\n"
     else:
         if ingreso:
-            datos = f"El legajo: {legajo}, ingreso la fecha: {hoy}\n"
+            datos = f"El legajo: {nombre}, INGRESO la fecha: {hoy}\n"
         else:
-            datos = f"El legajo: {legajo}, engreso la fecha: {hoy}\n"
+            datos = f"El legajo: {nombre}, EGRESO la fecha: {hoy}\n"
     try:
         with open("Ingreso_y_Egreso_Personal.txt", "a") as archivo:
             archivo.write(datos)
@@ -685,16 +685,16 @@ class Personal(Usuario):
         self.sueldo=sueldo
     
     def ingreso (self):
-        legajo =self.nro_personal
-        ingreso_y_egreso(legajo,hoy,False,True)
+        nombre=self.nombreusuario
+        ingreso_y_egreso(nombre,hoy,False,True)
 
     def egreso(self):
-        legajo =self.nro_personal
-        ingreso_y_egreso(legajo,hoy,False,False)
+        nombre=self.nombreusuario
+        ingreso_y_egreso(nombre,hoy,False,False)
 
     def renunciar(self):
-        legajo =self.nro_personal
-        ingreso_y_egreso(legajo,hoy,True,False)
+        nombre=self.nombreusuario
+        ingreso_y_egreso(nombre,hoy,True,False)
         
     def alta(self):
         legajo=self.nro_personal
@@ -724,13 +724,13 @@ class Personal(Usuario):
                 file.writelines(tareas)
 
             print("La primera tarea ha sido eliminada con éxito.")
-        except IOError as e:
-            print(f"Error al eliminar la tarea: {e}")
+        except FileNotFoundError:
+            print(f"No existe el archivo: {nombre_archivo}")
     
 
 class Administrativo(Personal):
-    tipo="Administrador"
-    trabajos=["organizar evento","coordinar transporte","recibir al cliente"]
+    tipo="Administrativo"
+    trabajos=["Organizar un evento","Coordinar el transporte","Recibir al cliente"]
     
     def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, sueldo):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña, sueldo)
@@ -763,37 +763,39 @@ class Administrativo(Personal):
 
             print("La última queja ha sido eliminada con éxito.")
 
-        except IOError as e:
-            print(f"Error al eliminar la queja: {e}")
+        except FileNotFoundError:
+            print("El archivo quejas.txt no existe")
     
     def asignar_tarea (self,tarea,tipo):
         if tipo == 1:
-            trabajos = Administrativo.trabajos
+            
+            nombre="Administrativo"
         elif tipo ==2:
-            trabajos = Limpieza.trabajos
+            
+            nombre="Limpieza"
         elif tipo ==3:
-            trabajos = Mantenimiento.trabajos
-        if tarea.lower() in trabajos:
-            nombre_archivo = f"tareas_{tipo}.txt"  
-            try:
-                with open(nombre_archivo, "a") as file:
-                    file.write(tarea + "\n")  
-                print(f"La tarea se ha guardado en el archivo '{nombre_archivo}' con éxito.")
-            except IOError as e:
-                print(f"Error al guardar la tarea en el archivo: {e}")
-        else:
-            print("La tarea no corresponde al tipo de empleado") 
+            
+            nombre="Mantenimiento"
+        
+        nombre_archivo = f"tareas_{nombre}.txt"  
+        try:
+            with open(nombre_archivo, "a") as file:
+                file.write(tarea + "\n")  
+            print(f"La tarea se ha guardado en el archivo '{nombre_archivo}' con éxito.")
+        except IOError as e:
+            print(f"Error al guardar la tarea en el archivo: {e}")
+ 
     
 class Limpieza(Personal):
-    tipo="Limpiador"
-    trabajos=["lavar cocina","limpiar cuartos","limpiar lobby"]
+    tipo="Limpieza"
+    trabajos=["Lavar la cocina","Limpiarlos cuartos","Limpiar el lobby"]
 
     def __init__(self, nombre, apellido, nombreusuario, dni, contraseña, sueldo):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña, sueldo)
 
 class Mantenimiento(Personal):
     tipo="Mantenimiento"
-    trabajos=["cortar pasto", "limpiar pileta","podar plantas"]
+    trabajos=["Cortar el pasto", "Limpiar la pileta","Podar las plantas"]
 
     def __init__(self, nombre, apellido, nombreusuario, dni, contraseña,sueldo):
         super().__init__(nombre, apellido, nombreusuario, dni, contraseña, sueldo)
