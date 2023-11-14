@@ -444,7 +444,6 @@ def crearPersonal(tipo,listaPersonal):
                     sueldo = input("Ingrese el sueldo solo con numeros, debe ser positivo\n ->")
             except ValueError:
                 sueldo = input("Ingrese el sueldo solo con numeros, debe ser positivo\n ->")
-        print("se creo bien")
         if tipo == 1:
             nuevoPersonal = Administrativo(nombre,apellido,usuario,dni,contra,sueldo)
         elif tipo == 2:
