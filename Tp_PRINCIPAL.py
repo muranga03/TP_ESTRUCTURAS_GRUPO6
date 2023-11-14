@@ -976,31 +976,17 @@ class Personal(Usuario):
         Personal.numero+=1
         self.sueldo=sueldo
     
-<<<<<<< HEAD
     def ingreso (self,hoy):
-        legajo =self.nro_personal
-        ingreso_y_egreso(legajo,hoy,False,True)
-
-    def egreso(self,hoy):
-        legajo =self.nro_personal
-        ingreso_y_egreso(legajo,hoy,False,False)
-
-    def renunciar(self,hoy):
-        legajo =self.nro_personal
-        ingreso_y_egreso(legajo,hoy,True,False)
-=======
-    def ingreso (self):
         nombre=self.nombreusuario
         ingreso_y_egreso(nombre,hoy,False,True)
 
-    def egreso(self):
+    def egreso(self,hoy):
         nombre=self.nombreusuario
         ingreso_y_egreso(nombre,hoy,False,False)
 
-    def renunciar(self):
+    def renunciar(self,hoy):
         nombre=self.nombreusuario
         ingreso_y_egreso(nombre,hoy,True,False)
->>>>>>> fac00ca0bcd1396c2b4e7c9bb9868934c70e295d
         
     def alta(self):
         legajo=self.nro_personal
