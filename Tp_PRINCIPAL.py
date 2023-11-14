@@ -296,8 +296,9 @@ class Lista_reservas:
                 print(i)
 
 class Recaudaciones:
+    '''Clase creada especialmente para el manejo de las recaudaciones diarias'''
     def __init__(self, nombre_archivo):
-        self.total_diario = {}  # Dictionary to store daily fundraising totals
+        self.total_diario = {}  # Utilizamos un diccionario para almaceral las recaudaciones diarias
         self.nombre_archivo = nombre_archivo
         self.bajar_de_archivo()
 

@@ -483,12 +483,12 @@ def menu_Limpieza_Mantenimiento(cuenta,listaPersonal,listaClientes,listaUsuarios
         else:
             print("Opción no válida. Por favor, selecciona una opción válida.")
 
-def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy):
+def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta,hoy,listaClientes):
         '''Esta funcion sirve como menu para el personal de clase Administrativo. Permite realizar cada funcion que cumple un administrador mediante numeros que ingresa el usuario'''
-
+        
+        opcion = input("\n1: Crear una cuenta de Personal \n2: Ver porcentaje de ocupacion actual de habitaciones \n3: Ver Porcentaje de ocupacion actual de habitaciones segun su categoria \n4: Ver recaudacion de hoy \n5: Crear tarea \n6: Eliminar primer tarea \n7: Eliminar ultima queja \n8: Ver cantidad de clientes por categoria\n0: Cerrar cuenta \n ->")
+        opcion = checkNro(opcion,8)
         while True:    
-            opcion = input("\n1: Crear una cuenta de Personal \n2: Ver porcentaje de ocupacion actual de habitaciones \n3: Ver Porcentaje de ocupacion actual de habitaciones segun su categoria \n4: Ver recaudacion de hoy \n5: Crear tarea \n6: Eliminar primer tarea \n7: Eliminar ultima queja \n0: Cerrar cuenta \n ->")
-            opcion = checkNro(opcion,7)
             if opcion == 1:
                 tipo = input("Seleccione el tipo de cuenta que desea crear:\n1: Cuenta Administrador \n2: Cuenta Limpieza \n3: Cuenta Mantenimiento \n0: Si desea regresar al menu \n ->")
                 tipo = checkNro(tipo,3)
@@ -501,7 +501,7 @@ def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta
                 print("El porcentaje de ocupacion de habitaciones de tipo basico actual es: " + ocupBas +'%' + "\nEl porcentaje de ocupacion de habitaciones de tipo medio actual es: " + ocupMed +'%' + "\nEl porcentaje de ocupacion de habitaciones de tipo medio actual es: " + ocupPrem +'%')
                 
             elif opcion == 4:
-                cuenta.ver_recaudacion_diaria(hoy,True)
+                cuenta.ver_recaudacion_diaria(hoy)
                 
             elif opcion == 5:
                 tipo == input("Ingrese a que personal quiere agregarle la tarea: \n1: Administrador \n2: Limpieza \n3: Mantenimiento")
@@ -526,6 +526,9 @@ def menu_Administrativo(listaPersonal,ocupActual,ocupBas,ocupMed,ocupPrem,cuenta
 
             elif opcion == 7:
                 cuenta.eliminar_ultima_queja()
+            
+            elif opcion==8:
+                cant_clientes_x_categoria(listaClientes)
             
             elif opcion == 0:
                 cuenta.egreso()
